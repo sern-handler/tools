@@ -1,0 +1,30 @@
+{
+  "name": "@sern/builder",
+  "version": "1.0.0-rc1",
+  "description": "Type safe options builder for the discord api",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "scripts": {
+    "bundle": "microbundle --target node", 
+    "watch": "microbundle watch",
+    "test": "microbundle --target node && node ./test/index.test.mjs"
+  },
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.js",
+    "default": "./dist/index.modern.mjs"
+  },
+  "dependencies": {
+    "discord-api-types": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.0",
+    "microbundle": "^0.15.1",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

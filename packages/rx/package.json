@@ -4,10 +4,10 @@
   "module": "./dist/index.mjs",
   "exports": {
     ".": {
-        "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs"
     },
     "./djs": {
-        "import": "./dist/djs/index.mjs"
+      "import": "./dist/djs/index.mjs"
     }
   },
   "version": "0.0.3-alpha",

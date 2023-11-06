@@ -1,0 +1,11 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies
+ []
+
+ :builds
+ {:poster {:target :node-library
+           :output-to "dist/index.js"
+           :exports-var core.poster/add}}}

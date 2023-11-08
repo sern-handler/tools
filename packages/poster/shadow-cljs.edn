@@ -8,4 +8,4 @@
  :builds
  {:poster {:target :node-library
            :output-to "dist/index.js"
-           :exports-var core.poster/add}}}
+           :exports-var core.poster/poster}}}

@@ -2,19 +2,19 @@
 
 
 (def routes {
-;               :GlobalGetAll "/applications/{application.id}/commands"
-;               :GlobalGet    "/applications/{application.id}/commands/commands/{command.id}"
-;               :GlobalPost   "/applications/{application.id}/commands"
-;               :GlobalEdit   "/applications/{application.id}/commands/{command.id}"
-;               :GlobalDelete "/applications/{application.id}/commands/{command.id}"
-                :global/put   ["PUT" "/applications/{application.id}/commands"]
-;               :GuildGetAll  "/applications/{application.id}/guilds/{guild.id}/commands"
-;               :GuildPost    "/applications/{application.id}/guilds/{guild.id}/commands"
-;               :GuildGet     "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
-;               :GuildEdit    "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
-;               :GuildDelete  "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
-;               :GuildPut     "/applications/{application.id}/guilds/{guild.id}/commands"
-            })
+;       :global/get-all "/applications/{application.id}/commands"
+;       :global/get    "/applications/{application.id}/commands/commands/{command.id}"
+;       :global/post   "/applications/{application.id}/commands"
+;       :global/edit   "/applications/{application.id}/commands/{command.id}"
+        :global/delete ["DELETE", "/applications/{application.id}/commands/{command.id}"]
+        :global/put    ["PUT" "/applications/{application.id}/commands"]
+;       :guild/get-all  "/applications/{application.id}/guilds/{guild.id}/commands"
+;       :guild/post    "/applications/{application.id}/guilds/{guild.id}/commands"
+;       :guild/get     "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
+;       :guild/edit    "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
+;       :guild/delete  "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"
+;       :guild/put     "/applications/{application.id}/guilds/{guild.id}/commands"
+})
 
 (defn request-init [spec]  
   (let [[method url] (routes spec)]
@@ -24,6 +24,11 @@
                       "body" (.stringify js/JSON body )}) 
          ]))
 
-(def actions{ 
-  "global/put" (request-init :global/put)
-})
+(defn keyword->str [ky] 
+  (subs (str ky) 1))
+
+(def actions (into {} 
+    (for [[k v] routes] [(keyword->str k)  (request-init k)])))
+
+
+

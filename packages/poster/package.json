@@ -13,6 +13,9 @@
     "shadow-cljs": "^2.8.52",
     "source-map-support": "^0.5.13"
   },
+  "peerDependencies": {
+    
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"

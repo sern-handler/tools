@@ -1,9 +1,9 @@
 import poster from '../dist/index.js';
 
-const client = poster("token", "appid");
+const send = poster("token", "appid");
 
 
-const req = await client("global/put", {  });
+const req = await send("global/put", {  });
 
 
 console.log(req);

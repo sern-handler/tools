@@ -28,7 +28,9 @@
   (subs (str ky) 1))
 
 (def actions (into {} 
-    (for [[k v] routes] [(keyword->str k)  (request-init k)])))
+    (map (fn [[k v]] [(keyword->str k)  (request-init k)]))
+    routes
+    ))
 
 
 

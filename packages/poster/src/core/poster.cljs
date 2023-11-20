@@ -1,20 +1,21 @@
 (ns core.poster
-  (:use [core.actions :only [validators]]))
+  (:require  [clojure.string :refer [replace]]
+             [core.actions :refer [actions]]))
 
-(def base-url (new js/URL "https://discord.com/api/v10/applications/"))
+(def base-url "https://discord.com/api/v10/applications")
 
-(def excluded-keys #js { "command" "absPath" })
-
-(defn make-global [appid token] 
-  "makes a url which posts to global"
-  (new js/URL (str appid "/commands") base-url))
+(defn processed-url [remaining-url opts] 
+  (-> (str base-url remaining-url)
+       (replace  #"\{application\.id\}" (.-app_id opts))
+       (replace  #"\{guild\.id\}" (.-guild_id opts))
+       (replace  #"\{command\.id\}" (.-command_id opts))))
 
 (defn poster [token, appid]
   (let [header #js{ "Content-Type" "application/json"
                     "Authorization" (str "Bot " token) }]
-    (fn [action body]
-      (let [ [request-init validator]  (validators action)
-             { is-valid? :valid explain :explain } validator]
-        (if (is-valid? body)
-          (js/fetch base-url (request-init body))
-          (explain body))))))
+    (fn [action opts]
+      (let [ [url mkrequest]  (actions action)
+             full-url (processed-url url #js { "app_id" appid 
+                                               "guild_id" (.-guild_id opts) 
+                                               "command_id" (.-command_id opts) })] 
+        (js/fetch  full-url (mkrequest (.-body opts ) header))))))

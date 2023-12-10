@@ -8,4 +8,7 @@
  :builds
  {:poster {:target :node-library
            :output-to "dist/index.js"
-           :exports-var core.poster/poster}}}
+           :exports-var core.poster/poster
+           :build-hooks 
+           [(dev.mv/hook 1 2 3)]
+           }}}

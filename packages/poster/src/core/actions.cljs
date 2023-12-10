@@ -3,7 +3,7 @@
 
 (def routes {
        :global/get-all ["GET" "/applications/{application.id}/commands"]
-       :global/get     ["GET" "/applications/{application.id}/commands/commands/{command.id}"]
+       :global/get     ["GET" "/applications/{application.id}/commands/{command.id}"]
        :global/post    ["POST" "/applications/{application.id}/commands"]
        :global/edit    ["PATCH" "/applications/{application.id}/commands/{command.id}"]
        :global/delete  ["DELETE", "/applications/{application.id}/commands/{command.id}"]
@@ -18,7 +18,7 @@
 
 (defn request-init [spec]  
   (let [[method url] (routes spec)]
-        [ url (fn [body headers] 
+        [url (fn [body headers] 
                 #js { "method" method 
                       "headers" headers
                       "body" (.stringify js/JSON body )}) 
@@ -29,8 +29,7 @@
 
 (def actions (into {} 
     (map (fn [[k v]] [(keyword->str k)  (request-init k)]))
-    routes
-    ))
+    routes))
 
 
 

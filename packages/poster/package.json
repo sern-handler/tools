@@ -5,8 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:debug": "shadow-cljs compile poster && node -e \"require('fs').copyFileSync('dts/index.d.ts', 'dist/index.d.ts')\"",
-    "build:release": "shadow-cljs release poster && node -e \"require('fs').copyFileSync('dts/index.d.ts', 'dist/index.d.ts')\"",
+    "build:debug": "shadow-cljs compile poster",
+    "build:release": "shadow-cljs release poster",
+    "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./dts/discord.d.ts",
     "repl": "shadow-cljs node-repl"
   },
   "devDependencies": {

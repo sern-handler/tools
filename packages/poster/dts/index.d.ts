@@ -16,30 +16,31 @@ type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/command
 type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
 type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
 
-type AnyRoute = 
-    | GlobalGetAll 
-    | GlobalGet 
-    | GlobalPost 
-    | GlobalEdit 
-    | GlobalPut 
-    | GlobalDelete 
-    | GuildPost 
-    | GuildGet 
-    | GuildEdit 
-    | GuildDelete 
-    | GuildPut;
+//We create a discriminating union to ensure Responses are typed correctly
+//type AnyRoute = 
+//    | GlobalGetAll  & { type: "global/get-all" }
+//    | GlobalGet  & { type: "global/get" }
+//    | GlobalPost  & { type: "global/post" }
+//    | GlobalEdit  & { type: "global/edit" }
+//    | GlobalPut  & { type: "global/put" }
+//    | GlobalDelete  & { type: "global/delete" }
+//    | GuildPost  & { type: "global/post" }
+//    | GuildGet  & { type: "global/x" }
+//    | GuildEdit  & { type: "global/get" }
+//    | GuildDelete  & { type: "global/delete" }
+//    | GuildPut & { type: "global/put" };
 
 
 interface RoutesOptions {
-  "global/get-all": [];
-  "global/get": [GlobalGet["parameters"]["path"] & { application_id?: never }];
+  "global/get-all": [GlobalGetAll['parameters']];
+  "global/get":  [GlobalGet["parameters"]["path"] & { application_id?: never }];
   "global/post": [{ body: GlobalPost["requestBody"]["content"]['application/json'] } 
                   & GlobalPost["parameters"]["path"] 
                   & { application_id?: never }];
   "global/edit": [{ body: GlobalEdit["requestBody"]["content"]['application/json']} 
                   & GlobalEdit["parameters"]["path"] 
                   & { application_id?: never }];
-  "global/put": [{ body: GlobalPut["requestBody"]["content"]['application/json']} 
+  "global/put":  [{ body: GlobalPut["requestBody"]["content"]['application/json']} 
                   & GlobalPut["parameters"]['path'] 
                   & { application_id?: never } ];
   "global/delete": [];
@@ -55,12 +56,17 @@ interface RoutesOptions {
                   & { application_id?: never }];
 }
 
-interface TypedResponse<T extends keyof RoutesOptions> extends Response {
-    body?: { } & AnyRoute['responses']
-}
+//interface TypedResponse<T extends keyof RoutesOptions> extends Response {
+//    /**
+//      * Please do not use `.type` in runtime. It is merely a way to get accurate typings 
+//      * It does not exist in runtime.
+//      */
+//    json(): ({ type: T } & AnyRoute)['responses']
+//}
 
 interface Send {
-    <T extends keyof RoutesOptions>(command : T, ...opts: RoutesOptions[T]): Promise<Response>
+    <T extends keyof RoutesOptions>
+    (command : T, ...opts: RoutesOptions[T]): Promise<Response>
 }
 
 export default function (token: string, appid: string): Send;

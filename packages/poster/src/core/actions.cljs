@@ -16,7 +16,7 @@
        :guild/put      ["PUT" "/applications/{application.id}/guilds/{guild.id}/commands"]
 })
 
-(defn request-init [spec]  
+(defn- request-init [spec]  
   (let [[method url] (routes spec)]
         [url (fn [body headers] 
                 #js { "method" method 
@@ -24,7 +24,7 @@
                       "body" (.stringify js/JSON body )}) 
          ]))
 
-(defn keyword->str [ky] 
+(defn- keyword->str [ky] 
   (subs (str ky) 1))
 
 (def actions (into {} 

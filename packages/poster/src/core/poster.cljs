@@ -6,9 +6,9 @@
 
 (defn processed-url [remaining-url opts] 
   (-> (str base-url remaining-url)
-       (replace  #"\{application\.id\}" (.-app_id ^js opts))
-       (replace  #"\{guild\.id\}" (.-guild_id ^js opts))
-       (replace  #"\{command\.id\}" (.-command_id ^js opts))))
+      (replace  #"\{application\.id\}" (.-app_id ^js opts))
+      (replace  #"\{guild\.id\}" (.-guild_id ^js opts))
+      (replace  #"\{command\.id\}" (.-command_id ^js opts))))
 
 (defn poster [token, appid]
   (let [header #js{ "Content-Type" "application/json"

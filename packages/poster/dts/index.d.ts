@@ -16,6 +16,20 @@ type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/command
 type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
 type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
 
+type AnyRoute = 
+    | GlobalGetAll 
+    | GlobalGet 
+    | GlobalPost 
+    | GlobalEdit 
+    | GlobalPut 
+    | GlobalDelete 
+    | GuildPost 
+    | GuildGet 
+    | GuildEdit 
+    | GuildDelete 
+    | GuildPut;
+
+
 interface RoutesOptions {
   "global/get-all": [];
   "global/get": [GlobalGet["parameters"]["path"] & { application_id?: never }];
@@ -30,8 +44,8 @@ interface RoutesOptions {
                   & { application_id?: never } ];
   "global/delete": [];
   "guild/post": [{ body: GuildPost["requestBody"]["content"]['application/json'] }];
-  "guild/get": [GuildGet["parameters"]["path"] & { application_id?: never }];
-      
+  "guild/get": [GuildGet["parameters"]["path"] 
+                & { application_id?: never }];
   "guild/edit": [{ body: GuildEdit["requestBody"]["content"]['application/json'] } 
                   & GuildEdit["parameters"]["path"] 
                   & { application_id?: never }];
@@ -39,10 +53,11 @@ interface RoutesOptions {
   "guild/put": [{ body: GuildPut["requestBody"]["content"]['application/json']} 
                   & GuildPut["parameters"]["path"] 
                   & { application_id?: never }];
-
 }
 
-
+interface TypedResponse<T extends keyof RoutesOptions> extends Response {
+    body?: { } & AnyRoute['responses']
+}
 
 interface Send {
     <T extends keyof RoutesOptions>(command : T, ...opts: RoutesOptions[T]): Promise<Response>

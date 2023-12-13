@@ -47,7 +47,7 @@ starting [here.](https://discord.com/developers/docs/interactions/application-co
 
 ## Extra 
 For fully typed responses (which i do not recommend), cast your response. 
-An example exists [here] (../poster/test/spec.ts). Also I don't know if they work for every single type, if they dont, I will fix it if it is a serious issue.
+An example exists [here](../poster/test/spec.ts). Also I don't know if they work for every single type, if they dont, I will fix it if it is a serious issue.
 
 
 ## Developing

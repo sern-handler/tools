@@ -22,3 +22,23 @@ const req = await send("global/get-all", {
 
 console.log(await req.json());
 ```
+
+## Mappings
+This package is pretty simple. Create a new client and call one of the virtual routes
+### virtual routes
+
+| Endpoint         | Method | Path                                                |
+|------------------|--------|---------------------------------------------------- |
+| global/get-all   | GET    | /applications/{application.id}/commands             |
+| global/get       | GET    | /applications/{application.id}/commands/{command.id}|
+| global/post      | POST   | /applications/{application.id}/commands             |
+| global/edit      | PATCH  | /applications/{application.id}/commands/{command.id}|
+| global/delete    | DELETE | /applications/{application.id}/commands/{command.id}|
+| global/put       | PUT    | /applications/{application.id}/commands             |
+| guild/get-all    | GET    | /applications/{application.id}/guilds/{guild.id}/commands|
+| guild/post       | POST   | /applications/{application.id}/guilds/{guild.id}/commands|
+| guild/get        | GET    | /applications/{application.id}/guilds/{guild.id}/commands/{command.id}|
+| guild/edit       | PATCH  | /applications/{application.id}/guilds/{guild.id}/commands/{command.id}|
+| guild/delete     | DELETE | /applications/{application.id}/guilds/{guild.id}/commands/{command.id}|
+| guild/put        | PUT    | /applications/{application.id}/guilds/{guild.id}/commands|
+

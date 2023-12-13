@@ -12,5 +12,8 @@ if(poster.isOk<GlobalPut>(req)) {
     req.json().then(s => s?.map(v => v.name))
     
 }
-console.log(await req.json());
+
+const unhandled = await req.json();
+
+unhandled // ??
 

@@ -9,6 +9,7 @@ const req = await send("global/get-all", {
 }) as TypedResponse<GlobalPut>;
 
 if(poster.isOk<GlobalPut>(req)) {
+    req.json().then(s => s?.map(v => v.name))
     
 }
 console.log(await req.json());

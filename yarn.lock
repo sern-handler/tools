@@ -2070,6 +2070,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@sern/poster@workspace:packages/poster":
+  version: 0.0.0-use.local
+  resolution: "@sern/poster@workspace:packages/poster"
+  dependencies:
+    shadow-cljs: ^2.8.52
+    source-map-support: ^0.5.13
+  languageName: unknown
+  linkType: soft
+
 "@sern/rx@workspace:packages/rx":
   version: 0.0.0-use.local
   resolution: "@sern/rx@workspace:packages/rx"
@@ -6251,15 +6260,6 @@ __metadata:
   checksum: 1d8611341b073143ad90486fcdfeab49edd243377b1f51834dc4f6d028e82ce5190e4f11bb2633276864503654fb7cab28e67abdc0fbf9d1f88cad4a0ff0beea
   languageName: node
   linkType: hard
-
-"poster@workspace:packages/poster":
-  version: 0.0.0-use.local
-  resolution: "poster@workspace:packages/poster"
-  dependencies:
-    shadow-cljs: ^2.8.52
-    source-map-support: ^0.5.13
-  languageName: unknown
-  linkType: soft
 
 "pretty-bytes@npm:^3.0.0":
   version: 3.0.1

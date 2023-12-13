@@ -2,13 +2,13 @@
   (:require  [clojure.string :refer [replace]]
              [core.actions :refer [actions]]))
 
-(def base-url "https://discord.com/api/v10")
+(def base "https://discord.com/api/v10")
 
 (defn- inject [remaining-url opts] 
-  (-> (str base-url remaining-url)
-      (replace  #"\{application\.id\}" (.-app_id ^js opts))
-      (replace  #"\{guild\.id\}" (.-guild_id ^js opts))
-      (replace  #"\{command\.id\}" (.-command_id ^js opts))))
+  (-> (str base remaining-url)
+      (replace #"\{application\.id\}" (.-app_id ^js opts))
+      (replace #"\{guild\.id\}" (.-guild_id ^js opts))
+      (replace #"\{command\.id\}" (.-command_id ^js opts))))
 
 (defn ?params [^js query]
   (new js/URLSearchParams query))
@@ -25,5 +25,9 @@
         (set! (.-search url) (?params (.-query ^js opts))) 
         (js/fetch url (mkrequest (.-body ^js opts) header))))))
 
+(defn isOk? [^js response] 
+  (.-ok response))
 
-
+(defn is4XX? [^js response] 
+  (not (.-ok response)))
+  

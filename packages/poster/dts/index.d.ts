@@ -2,37 +2,39 @@ declare module 'index.js';
 
 import type { paths } from './discord.d.ts'
 
-type Method = "get" | "post" | "patch" | "put" | "delete"
+export type GlobalGetAll = paths["/applications/{application_id}/commands"]["get"]
+export type GlobalGet = paths["/applications/{application_id}/commands/{command_id}"]["get"]
+export  type GlobalPost = paths["/applications/{application_id}/commands"]["post"]
+export type GlobalEdit = paths["/applications/{application_id}/commands/{command_id}"]["patch"]
+export type GlobalPut = paths["/applications/{application_id}/commands"]['put']
+export type GlobalDelete = paths["/applications/{application_id}/commands/{command_id}"]["delete"]
+export type GuildPost = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["post"]
+export type GuildGet = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["get"]
+export type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["patch"]
+export type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
+export type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
 
-type GlobalGetAll = paths["/applications/{application_id}/commands"]["get"]
-type GlobalGet = paths["/applications/{application_id}/commands/{command_id}"]["get"]
-type GlobalPost = paths["/applications/{application_id}/commands"]["post"]
-type GlobalEdit = paths["/applications/{application_id}/commands/{command_id}"]["patch"]
-type GlobalPut = paths["/applications/{application_id}/commands"]['put']
-type GlobalDelete = paths["/applications/{application_id}/commands/{command_id}"]["delete"]
-type GuildPost = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["post"]
-type GuildGet = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["get"]
-type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["patch"]
-type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
-type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
+type ResponsesForRoute<T> = T extends { responses: infer R } ? R : never;
 
-//We create a discriminating union to ensure Responses are typed correctly
-//type AnyRoute = 
-//    | GlobalGetAll  & { type: "global/get-all" }
-//    | GlobalGet  & { type: "global/get" }
-//    | GlobalPost  & { type: "global/post" }
-//    | GlobalEdit  & { type: "global/edit" }
-//    | GlobalPut  & { type: "global/put" }
-//    | GlobalDelete  & { type: "global/delete" }
-//    | GuildPost  & { type: "global/post" }
-//    | GuildGet  & { type: "global/x" }
-//    | GuildEdit  & { type: "global/get" }
-//    | GuildDelete  & { type: "global/delete" }
-//    | GuildPut & { type: "global/put" };
 
+type GetOk <T,  V = Omit<T, '4XX'>> 
+//@ts-ignore typescript shush
+= V[keyof V]['content']['application/json']
+
+//@ts-ignore shh
+type GetErr<T> = T['4XX']
+
+type ResultJson<T> = 
+    | (GetOk<ResponsesForRoute<T>>)
+    | (GetErr<ResponsesForRoute<T>>)
+
+
+interface TypedResponse<T> extends Response {
+    json(): Promise<ResultJson<T>>
+}
 
 interface RoutesOptions {
-  "global/get-all": [GlobalGetAll['parameters']];
+  "global/get-all": [{ query?: GlobalGetAll['parameters']['query'] }];
   "global/get":  [GlobalGet["parameters"]["path"] & { application_id?: never }];
   "global/post": [{ body: GlobalPost["requestBody"]["content"]['application/json'] } 
                   & GlobalPost["parameters"]["path"] 
@@ -56,17 +58,20 @@ interface RoutesOptions {
                   & { application_id?: never }];
 }
 
-//interface TypedResponse<T extends keyof RoutesOptions> extends Response {
-//    /**
-//      * Please do not use `.type` in runtime. It is merely a way to get accurate typings 
-//      * It does not exist in runtime.
-//      */
-//    json(): ({ type: T } & AnyRoute)['responses']
-//}
 
 interface Send {
     <T extends keyof RoutesOptions>
     (command : T, ...opts: RoutesOptions[T]): Promise<Response>
 }
 
-export default function (token: string, appid: string): Send;
+export function client(token: string, appid: string): Send;
+
+export function isOk<T>(res : TypedResponse<T>) 
+//WE CANNOT JUST INTERSECTION. We have to remove the old type for Json
+: res is Omit<TypedResponse<T>, 'json'> & { json(): Promise<GetOk<ResponsesForRoute<T>>> }
+export function is4XX<T>(res: TypedResponse<T>) 
+//WE CANNOT JUST INTERSECTION. We have to remove the old type for Json
+: res is Omit<TypedResponse<T>, 'json'> & { json(): Promise<GetErr<ResponsesForRoute<T>>> }
+
+export { TypedResponse };
+

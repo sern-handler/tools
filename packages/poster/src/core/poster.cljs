@@ -10,7 +10,7 @@
       (replace #"\{guild\.id\}" (.-guild_id ^js opts))
       (replace #"\{command\.id\}" (.-command_id ^js opts))))
 
-(defn ?params [^js query]
+(defn- ?params [^js query]
   (new js/URLSearchParams query))
 
 (defn poster [token, appid]

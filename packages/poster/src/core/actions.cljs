@@ -16,8 +16,8 @@
        :guild/put      ["PUT" "/applications/{application.id}/guilds/{guild.id}/commands"]
 })
 
-(defn- request-init [spec]  
-  (let [[method url] (routes spec)]
+(defn- request-init [v]  
+  (let [[method url] v]
         [url (fn [body headers] 
                 #js { "method" method 
                       "headers" headers
@@ -28,7 +28,7 @@
   (subs (str ky) 1))
 
 (def actions (into {} 
-    (map (fn [[k v]] [(keyword->str k)  (request-init k)]))
+    (map (fn [[k v]] [(keyword->str k)  (request-init v)]))
     routes))
 
 

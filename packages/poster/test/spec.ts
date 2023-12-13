@@ -6,7 +6,7 @@ const send = poster.client("token", "appid");
 
 const req = await send("global/get-all", { 
     
-}) as TypedResponse<GlobalPut>;
+}) as TypedResponse<GlobalPut>; //cast for full typed safety
 
 if(poster.isOk<GlobalPut>(req)) {
     req.json().then(s => s?.map(v => v.name))

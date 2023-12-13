@@ -4,7 +4,7 @@ REST API client for managing discord application commands.
 ## features
 
 - Optionally typed responses
-    - view an example (here)[../poster/test/spec.ts]
+    - view an example [here](../poster/test/spec.ts)
 - Typed options
 - Simple! (sort of)
 - ClojureScript + Typescript
@@ -17,7 +17,7 @@ import poster from '@sern/poster';
 const send = poster.client("token", "appid");
 
 const req = await send("global/get-all", { 
-    
+    //options
 });
 
 console.log(await req.json());
@@ -44,3 +44,10 @@ This package is pretty simple. Create a new client and call one of the "endpoint
 
 Documentation for these routes are specified in the discord api documentation, 
 starting [here.](https://discord.com/developers/docs/interactions/application-commands#get-global-application-commands)
+
+## Extra 
+For fully typed responses (which i do not recommend), cast your response. 
+An example exists [here] (../poster/test/spec.ts). Also I don't know if they work for every single type, if they dont, I will fix it if it is a serious issue.
+
+
+

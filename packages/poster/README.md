@@ -50,4 +50,12 @@ For fully typed responses (which i do not recommend), cast your response.
 An example exists [here] (../poster/test/spec.ts). Also I don't know if they work for every single type, if they dont, I will fix it if it is a serious issue.
 
 
-
+## Developing
+```sh
+git clone https://github.com/sern-handler/tools.git
+cd tools
+yarn
+cd packages/poster
+yarn run gen-discord-types
+yarn build:debug
+```

@@ -1,7 +1,7 @@
 {
   "name": "@sern/poster",
   "version": "1.0.0",
-  "description": "Post application commands",
+  "description": "Post discord application commands",
   "main": "dist/index.js",
   "scripts": {
     "poster:debug": "shadow-cljs compile poster",

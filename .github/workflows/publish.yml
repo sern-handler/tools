@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 17
       - run: corepack enable 
-      - run:yarn set version classic
+      - run: yarn set version classic
       - run: yarn install
       - run: yarn poster:prod
       - run: cd ./packages/poster

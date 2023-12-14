@@ -33,6 +33,13 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
+      - run: corepack enable 
+      - run: yarn set version classic
+      - run: yarn install
+      - run: yarn gen-discord-types
+        working-directory: ./packages/poster
+      - run: yarn poster:prod
+        working-directory: ./packages/poster
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

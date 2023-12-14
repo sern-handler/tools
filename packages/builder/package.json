@@ -17,6 +17,7 @@
   "dependencies": {
     "discord-api-types": "latest"
   },
+
   "devDependencies": {
     "@types/node": "^20.1.0",
     "microbundle": "^0.15.1",

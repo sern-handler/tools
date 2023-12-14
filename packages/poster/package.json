@@ -4,7 +4,6 @@
   "description": "Post application commands",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "poster:debug": "shadow-cljs compile poster",
     "poster:prod": "shadow-cljs release poster",
     "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./dts/discord.d.ts",

@@ -3,8 +3,8 @@ name: NPM / Publish
 on:
   workflow_dispatch:
   push:
-    paths:
-      - packages/poster/**/*
+    #paths:
+    # - packages/poster/**/*
     branches:
       - 'main'
 jobs:

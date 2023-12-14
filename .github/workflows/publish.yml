@@ -19,6 +19,8 @@ jobs:
       - run: yarn set version classic
       - run: yarn install
       - run: cd ./packages/poster && yarn gen-discord-types && yarn poster:prod
+
+        working-directory: ./packages/poster
       - uses: JS-DevTools/npm-publish@0f451a94170d1699fd50710966d48fb26194d939 # v1
         with:
           token: ${{ secrets.NPM_TOKEN }}

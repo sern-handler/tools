@@ -23,4 +23,3 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: "public"
-        working-directory: ./packages/poster

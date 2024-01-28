@@ -1,7 +1,7 @@
 import poster from '../dist/index.js';
 import type { GlobalGetAll, GlobalPut, TypedResponse } from '../dts/index.js';
 
-const send = poster.client("token", "appid");
+const send = await poster.client("token");
 
 
 const req = await send("global/get-all", { 

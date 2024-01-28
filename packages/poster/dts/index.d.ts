@@ -13,6 +13,7 @@ export type GuildGet = paths["/applications/{application_id}/guilds/{guild_id}/c
 export type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["patch"]
 export type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
 export type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
+export type ApplicationMe = paths["/applications/@me"]['get']
 
 type ResponsesForRoute<T> = T extends { responses: infer R } ? R : never;
 
@@ -56,6 +57,7 @@ interface RoutesOptions {
   "guild/put": [{ body: GuildPut["requestBody"]["content"]['application/json']} 
                   & GuildPut["parameters"]["path"] 
                   & { application_id?: never }];
+  "application/me": []
 }
 
 
@@ -64,7 +66,7 @@ interface Send {
     (command : T, ...opts: RoutesOptions[T]): Promise<Response>
 }
 
-export function client(token: string, appid: string): Send;
+export function client(token: string): Promise<Send>;
 
 export function isOk<T>(res : TypedResponse<T>) 
 //WE CANNOT JUST INTERSECTION. We have to remove the old type for Json

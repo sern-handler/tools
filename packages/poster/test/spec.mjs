@@ -1,7 +1,6 @@
 import poster from '../dist/index.js';
 
-const send = poster.client("token", "appid");
-
+const send = await poster.client("MTA2MTQyMTgzNDM0MTQ2MjAzNg.GL15Ob.EJ9SgdMQUhTTTGRhRKNBvVDQkTma7AG3DuLWis");
 
 const req = await send("global/get-all", { 
     

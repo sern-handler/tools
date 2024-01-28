@@ -14,6 +14,7 @@
        :guild/edit     ["PATCH" "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"]
        :guild/delete   ["DELETE" "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"]
        :guild/put      ["PUT" "/applications/{application.id}/guilds/{guild.id}/commands"]
+       :application/me ["GET"  "/applications/@me"]
 })
 
 (defn- request-init [v]  

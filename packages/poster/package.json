@@ -9,7 +9,6 @@
     "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./dts/discord.d.ts",
     "repl": "shadow-cljs node-repl"
   },
-
   "devDependencies": {
     "shadow-cljs": "^2.8.52",
     "source-map-support": "^0.5.13"

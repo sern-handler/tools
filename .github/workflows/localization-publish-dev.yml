@@ -26,11 +26,12 @@ jobs:
         run: yarn 
         
       - name: Build
-        run: cd packages/localizer && npm run build
-        
+        run: npm run build
+        working-directory: ./packages/localizer
+
       - name: Publish to npm
         run: |
-          npm version premajor --preid "dev.$(git rev-parse --verify --short HEAD)" --git-tag-version=false
-          npm publish --tag dev
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        working-directory: ./packages/localizer

@@ -9,7 +9,7 @@ import assert from 'node:assert';
  * @since 3.4.0
  * @internal
  */
-export class ShrimpleLocalizer implements Init {
+class ShrimpleLocalizer implements Init {
     private __localization!: LocalsProvider;
     constructor(){}
     currentLocale: string = "en-US";

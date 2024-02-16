@@ -1,19 +1,16 @@
-import assert from "node:assert";
+import assert from "assert";
 import { hasCallableMethod } from "./hooks";
 import {  } from 'node:fs/promises'
 
 /**
- * A semi-generic container that provides error handling, emitter, and module store. 
- * For the handler to operate correctly, The only user provided dependency needs to be @sern/client
+ * A Depedency injection container capable of adding singletons, firing hooks, and managing IOC within an application
  */
-export class CoreContainer {
+export class Container {
     private __singletons = new Map<PropertyKey, any>();
     private hooks= new Map<string, Function[]>();
     private finished_init = false;
     constructor(options: { autowire: boolean; path?: string }) {
-        if(options.autowire) {
-            
-        }
+        if(options.autowire) { /* noop */ }
     }
     
     addHook(name: string, callback: Function) {
@@ -23,10 +20,10 @@ export class CoreContainer {
         this.hooks.get(name)!.push(callback);
     }
     private registerHooks(hookname: string, insert: object) {
-            if(hasCallableMethod(insert, hookname)) {
-                //@ts-ignore
-                this.addHook('init', async () => await insert[hookname]())
-            }
+        if(hasCallableMethod(insert, hookname)) {
+            //@ts-ignore
+            this.addHook('init', async () => await insert[hookname]())
+        }
     }
     addSingleton(key: string, insert: object) {
         assert(typeof insert === 'object')
@@ -39,7 +36,7 @@ export class CoreContainer {
         return false;
     }
 
-    addWiredSingleton(key: string, fn: (c: CoreContainer) => object) {
+    addWiredSingleton(key: string, fn: (c: Container) => object) {
         const insert = fn(this);
         assert(typeof insert === 'object')
         if(!this.__singletons.has(key)){

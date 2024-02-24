@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.1.0",
-    "microbundle": "^0.15.1",
     "typescript": "^5.0.4"
   },
   "keywords": [],

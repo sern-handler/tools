@@ -14,7 +14,7 @@ REST API client for managing discord application commands.
 ```ts
 import poster from '@sern/poster';
 
-const send = poster.client("token", "appid");
+const send = await poster.client("token", "appid");
 
 const req = await send("global/get-all", { 
     //options
@@ -41,6 +41,7 @@ This package is pretty simple. Create a new client and call one of the "endpoint
 | guild/edit       | PATCH  | /applications/{application.id}/guilds/{guild.id}/commands/{command.id}|
 | guild/delete     | DELETE | /applications/{application.id}/guilds/{guild.id}/commands/{command.id}|
 | guild/put        | PUT    | /applications/{application.id}/guilds/{guild.id}/commands|
+| application/me   | GET    | /applications/@me|
 
 Documentation for these routes are specified in the discord api documentation, 
 starting [here.](https://discord.com/developers/docs/interactions/application-commands#get-global-application-commands)

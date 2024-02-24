@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { Container } from './container';
 
 //SIDE EFFECT: GLOBAL DI
@@ -21,7 +20,11 @@ export function __init_container(options: {
     autowire: boolean;
     path?: string | undefined;
 }) {
+    if(containerSubject) {
+        return false;
+    }
     containerSubject = new Container(options);
+    return true;
 }
 
 /**
@@ -30,10 +33,10 @@ export function __init_container(options: {
  * Use the Service API. The container should be readonly
  */
 export function useContainerRaw() {
-    assert.ok(
-        containerSubject && containerSubject.isReady(),
-        "Could not find container or container wasn't ready. Did you call makeDependencies?",
-    );
+    if (!(containerSubject && containerSubject.isReady())) {
+        throw new Error("Container wasn't ready or init'd. Please ensure container is ready()");
+    }
+
     return containerSubject;
 }
 
@@ -50,7 +53,9 @@ export function useContainerRaw() {
  */
 export function Service<const T>(key: PropertyKey) {
     const dep = useContainerRaw().get<T>(key)!;
-    assert(dep, "Requested key " + String(key) + " returned undefined");
+    if(!dep) {
+        throw Error("Requested key " + String(key) + " returned undefined");
+    }
     return dep;
 }
 /**

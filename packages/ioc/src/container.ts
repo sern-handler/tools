@@ -21,8 +21,9 @@ export class Container {
     }
     private registerHooks(hookname: string, insert: object) {
         if(hasCallableMethod(insert, hookname)) {
+            console.log(insert)
             //@ts-ignore
-            this.addHook('init', async () => await insert[hookname]())
+            this.addHook(hookname, () => insert[hookname]())
         }
     }
     addSingleton(key: string, insert: object) {
@@ -65,6 +66,7 @@ export class Container {
 
     async executeHooks(name: string) {
         const hookFunctions = this.hooks.get(name) || [];
+        console.log(hookFunctions)
         for (const hookFunction of hookFunctions) {
             await hookFunction();
         }

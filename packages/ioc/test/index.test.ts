@@ -1,12 +1,12 @@
 
-import { CoreContainer } from '../src/container';
+import { Container } from '../src/container';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('CoreContainer Tests', () => {
-    let coreContainer: CoreContainer;
+    let coreContainer: Container;
 
     beforeEach(() => {
-        coreContainer = new CoreContainer({ autowire: false });
+        coreContainer = new Container({ autowire: false });
     });
 
     it('Adding and getting singletons', () => {
@@ -76,7 +76,7 @@ describe('CoreContainer Tests', () => {
 
     it('wired singleton', async () => {
         let fn = vi.fn()
-        const wiredSingletonFn = (container: CoreContainer) => {
+        const wiredSingletonFn = (container: Container) => {
             return { value: 'wiredSingletonValue', init: fn };
         };
         const added = coreContainer.addWiredSingleton('wiredSingletonKey', wiredSingletonFn);
@@ -90,10 +90,9 @@ describe('CoreContainer Tests', () => {
     })
 
     it('dispose', async () => {
-        let dfn = vi.fn()
-        const wiredSingletonFn =  { value: 'wiredSingletonValue', dispose: vi.fn() };
+        let dfn = vi.fn();
+        const wiredSingletonFn =  { value: 'wiredSingletonValue', dispose: dfn };
         coreContainer.addSingleton('sk', wiredSingletonFn);
-        
         //@ts-ignore
         await coreContainer.disposeAll();
 

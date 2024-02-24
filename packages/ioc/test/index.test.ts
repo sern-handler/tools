@@ -15,12 +15,6 @@ describe('CoreContainer Tests', () => {
         expect(singleton).toEqual({ value: 'singletonValue' });
     });
 
-    it('Adding disposer for existing key', () => {
-//        const disposerFn = vi.fn();
-//        coreContainer.addSingleton('existingKey', { value: 'existingValue' });
-//        coreContainer.addDisposer('existingKey', disposerFn);
-//        expect(disposerFn).not.toHaveBeenCalled();
-    });
 
     it('Checking if container is ready', () => {
         expect(coreContainer.isReady()).toBe(false);

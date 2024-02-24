@@ -1,7 +1,8 @@
-import assert from "assert";
-import { hasCallableMethod } from "./hooks";
-import {  } from 'node:fs/promises'
 
+function hasCallableMethod(obj: object, name: PropertyKey) {
+    //@ts-ignore
+    return Object.hasOwn(obj, name) && typeof obj[name] == 'function';
+}
 /**
  * A Depedency injection container capable of adding singletons, firing hooks, and managing IOC within an application
  */
@@ -21,13 +22,14 @@ export class Container {
     }
     private registerHooks(hookname: string, insert: object) {
         if(hasCallableMethod(insert, hookname)) {
-            console.log(insert)
             //@ts-ignore
             this.addHook(hookname, () => insert[hookname]())
         }
     }
     addSingleton(key: string, insert: object) {
-        assert(typeof insert === 'object')
+        if(typeof insert !== 'object') {
+            throw Error("Inserted object must be an object");
+        }
         if(!this.__singletons.has(key)){
             this.registerHooks('init', insert)
             this.registerHooks('dispose', insert)
@@ -39,14 +41,7 @@ export class Container {
 
     addWiredSingleton(key: string, fn: (c: Container) => object) {
         const insert = fn(this);
-        assert(typeof insert === 'object')
-        if(!this.__singletons.has(key)){
-            this.registerHooks('init', insert)
-            this.registerHooks('dispose', insert)
-            this.__singletons.set(key, insert);
-            return true;    
-        }
-        return false;
+        return this.addSingleton(key, insert);
     }
 
     async disposeAll() {
@@ -66,7 +61,6 @@ export class Container {
 
     async executeHooks(name: string) {
         const hookFunctions = this.hooks.get(name) || [];
-        console.log(hookFunctions)
         for (const hookFunction of hookFunctions) {
             await hookFunction();
         }

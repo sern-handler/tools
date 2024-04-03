@@ -1,8 +1,25 @@
+<<<<<<< HEAD
+=======
+import assert from 'assert';
+>>>>>>> 82054aa (sss)
 import { Container } from './container';
 
 //SIDE EFFECT: GLOBAL DI
 let containerSubject: Container;
 
+<<<<<<< HEAD
+=======
+/**
+  * Don't use this unless you know what you're doing. Destroys old containerSubject if it exists and disposes everything
+  * then it will swap
+  */
+export async function __swap_container(c: Container) {
+    if(containerSubject) {
+       await containerSubject.disposeAll() 
+    }
+    containerSubject = c;
+}
+>>>>>>> 82054aa (sss)
 
 /**
   * Don't use this unless you know what you're doing. Destroys old containerSubject if it exists and disposes everything
@@ -20,11 +37,7 @@ export function __init_container(options: {
     autowire: boolean;
     path?: string | undefined;
 }) {
-    if(containerSubject) {
-        return false;
-    }
     containerSubject = new Container(options);
-    return true;
 }
 
 /**

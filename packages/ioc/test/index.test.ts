@@ -84,13 +84,37 @@ describe('CoreContainer Tests', () => {
     })
 
     it('dispose', async () => {
-        let dfn = vi.fn();
+        let dfn = vi.fn()
         const wiredSingletonFn =  { value: 'wiredSingletonValue', dispose: dfn };
         coreContainer.addSingleton('sk', wiredSingletonFn);
-        //@ts-ignore
+        
         await coreContainer.disposeAll();
 
         expect(dfn).toHaveBeenCalledOnce()
     })
+
+    it('Checking if container is ready', async () => {
+        expect(coreContainer.isReady()).toBe(false);
+        await coreContainer.ready();
+        expect(coreContainer.isReady()).toBe(true);
+    }); 
+    it('Registering and executing hooks - init should be called once after ready', async () => {
+        let initCount = 0;
+
+        const singletonWithInit = {
+            value: 'singletonValueWithInit',
+            init: async () => {
+                initCount++;
+            }
+        };
+
+        coreContainer.addSingleton('singletonKeyWithInit', singletonWithInit);
+
+        // Call ready twice to ensure hooks are executed only once
+        await coreContainer.ready();
+        await coreContainer.ready();
+
+        expect(initCount).toBe(1);
+    });
 
 })

@@ -22,8 +22,9 @@ export class Container {
     }
     private registerHooks(hookname: string, insert: object) {
         if(hasCallableMethod(insert, hookname)) {
+            console.log(hookname)
             //@ts-ignore
-            this.addHook(hookname, () => insert[hookname]())
+            this.addHook(hookname, async () => await insert[hookname]())
         }
     }
     addSingleton(key: string, insert: object) {

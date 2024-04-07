@@ -38,8 +38,6 @@
   (.-ok response))
 
 
-(def default {
-  :client poster             
-  :isOk isOk?
-  :is4XX (complement isOk?) 
-})
+(def default { :client poster             
+               :isOk isOk?
+               :is4XX (complement isOk?) })

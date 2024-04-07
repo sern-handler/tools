@@ -1,6 +1,6 @@
-(ns core.poster
+(ns poster
   (:require  [clojure.string :as s]
-             [core.actions :refer [actions]]))
+             [actions :refer [actions]]))
 
 (def ^:private base "https://discord.com/api/v10")
 

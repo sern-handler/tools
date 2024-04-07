@@ -3,12 +3,12 @@
   "version": "1.1.0",
   "description": "Post discord application commands",
   "exports": {
-    "." : "./dist/core/poster.mjs",
+    "." : "./dist/poster.mjs"
   },
   "scripts": {
     "poster:debug": "npx squint compile",
     "poster:prod": "npx squint compile",
-    "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./src/resources/poster.d.ts",
+    "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./src/discord.d.ts",
     "repl": "npx squint repl"
   },
   "keywords": [],

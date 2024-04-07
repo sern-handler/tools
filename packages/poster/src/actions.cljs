@@ -1,4 +1,4 @@
-(ns core.actions)
+(ns actions)
 
 
 (def routes {

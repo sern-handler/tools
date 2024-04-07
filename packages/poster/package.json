@@ -15,7 +15,8 @@
   "author": "",
   "license": "ISC",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag" "latest"
   },
   "dependencies": {
     "squint-cljs": "latest"

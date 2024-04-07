@@ -2,16 +2,14 @@
   "name": "@sern/poster",
   "version": "1.1.0",
   "description": "Post discord application commands",
-  "main": "dist/index.js",
-  "scripts": {
-    "poster:debug": "shadow-cljs compile poster",
-    "poster:prod": "shadow-cljs release poster",
-    "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./dts/discord.d.ts",
-    "repl": "shadow-cljs node-repl"
+  "exports": {
+    "." : "./dist/poster.mjs"
   },
-  "devDependencies": {
-    "shadow-cljs": "^2.8.52",
-    "source-map-support": "^0.5.13"
+  "scripts": {
+    "poster:debug": "npx squint compile",
+    "poster:prod": "npx squint compile",
+    "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./src/discord.d.ts",
+    "repl": "npx squint repl"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +17,8 @@
   "publishConfig": {
     "access": "public",
     "tag": "beta"
+  },
+  "dependencies": {
+    "squint-cljs": "latest"
   }
 }

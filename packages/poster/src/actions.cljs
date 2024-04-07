@@ -1,4 +1,4 @@
-(ns core.actions)
+(ns actions)
 
 
 (def routes {
@@ -22,14 +22,11 @@
         [url (fn [body headers] 
                 #js { "method" method 
                       "headers" headers
-                      "body" (.stringify js/JSON body )}) 
-         ]))
+                      "body" (js/JSON.stringify body)}) ]))
 
-(defn- keyword->str [ky] 
-  (subs (str ky) 1))
 
 (def actions (into {} 
-    (map (fn [[k v]] [(keyword->str k)  (request-init v)]))
+    (map (fn [[k v]] [k  (request-init v)]))
     routes))
 
 

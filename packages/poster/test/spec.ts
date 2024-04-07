@@ -1,5 +1,4 @@
-import poster from '../dist/index.js';
-import type { GlobalGetAll, GlobalPut, TypedResponse } from '../dts/index.js';
+import poster, { type GlobalPut, type TypedResponse } from '../dist/poster.js';
 
 const send = await poster.client("token");
 

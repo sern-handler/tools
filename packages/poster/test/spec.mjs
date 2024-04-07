@@ -1,4 +1,4 @@
-import poster from '../dist/index.js';
+import poster from '../dist/core/poster.mjs';
 
 const send = await poster.client("");
 

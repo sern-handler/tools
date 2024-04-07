@@ -1,2 +1,3 @@
 dist/
 .shadow-cljs
+src/*.d.ts

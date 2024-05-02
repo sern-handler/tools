@@ -3,7 +3,7 @@
   "version": "1.2.1",
   "description": "Post discord application commands",
   "exports": {
-    "." : "./dist/poster.mjs"
+    ".": "./dist/poster.mjs"
   },
   "scripts": {
     "poster:debug": "npx squint compile",

@@ -25,11 +25,9 @@
                       "body" (.stringify js/JSON body )}) 
          ]))
 
-(defn- keyword->str [ky] 
-  (subs (str ky) 1))
 
 (def actions (into {} 
-    (map (fn [[k v]] [(keyword->str k)  (request-init v)]))
+    (map (fn [[k v]] [k  (request-init v)]))
     routes))
 
 

@@ -1,41 +1,45 @@
 (ns core.poster
-  (:require  [clojure.string :refer [replace]]
-             [shadow.cljs.modern :refer (js-await)]
+  (:require  [clojure.string :as s]
              [core.actions :refer [actions]]))
 
-(def base "https://discord.com/api/v10")
+(def ^:private base "https://discord.com/api/v10")
 
 (defn- inject [remaining-url opts] 
   (-> (str base remaining-url)
-      (replace #"\{application\.id\}" (.-app_id ^js opts))
-      (replace #"\{guild\.id\}" (.-guild_id ^js opts))
-      (replace #"\{command\.id\}" (.-command_id ^js opts))))
+      (s/replace #"\{application\.id\}" (or (.-app_id ^js opts) ""))
+      (s/replace #"\{guild\.id\}" (or (.-guild_id ^js opts) ""))
+      (s/replace #"\{command\.id\}" (or (.-command_id ^js opts) ""))))
 
 (defn- ?params [^js query]
   (new js/URLSearchParams query))
 
 
-(defn fetch-application [headers] 
-  #_(println (str base (actions "application/me")))
-  (-> (js/fetch (str base (first (actions "application/me"))) #js{ "headers" headers })
-                   (.then (fn [res] (.json res))) 
-                   (.then (fn [json] (.-id json)))))
-(defn poster [token, appid]
+(defn- ^:async fetch-application [headers] 
+  (js-await  (-> (js/fetch (str base (first (get actions "application/me"))) #js{ "headers" headers })
+      (.then (fn ^:=> [res] (.json res))) 
+      (.then (fn ^:=> [son] (if-let [id (.-id son)] 
+                              id (throw (str "Reason " (.-message  son))))))
+      (.catch (fn ^:=> [e] (throw e))))))
+
+(defn- poster [token, appid]
   (let [header #js{ "Content-Type" "application/json"
-                    "Authorization" (str "Bot " token) } ]
-    (js-await [appid (fetch-application header)]
-     (fn [action opts]
-      (let [[url mkrequest]  (actions action)
+                    "Authorization" (str "Bot " token) }]
+     (^:async fn [action opts]
+      (let [[url mkrequest]  (get actions action)
+            appid (js-await (fetch-application header))
             options #js{"app_id" appid 
                         "guild_id" (.-guild_id ^js opts) 
                         "command_id" (.-command_id ^js opts)}
-            url (new js/URL (inject url options))]
+            url (new js/URL (inject url options)) ]
         (set! (.-search url) (?params (.-query ^js opts))) 
-        (js/fetch url (mkrequest (.-body ^js opts) header)))))))
+        (js/fetch url (mkrequest (.-body ^js opts) header))))))
 
-(defn isOk? [^js response] 
+(defn- isOk? [^js response] 
   (.-ok response))
 
-(defn is4XX? [^js response] 
-  (not (.-ok response)))
-  
+
+(def default {
+  :client poster             
+  :isOk isOk?
+  :is4XX (complement isOk?) 
+})

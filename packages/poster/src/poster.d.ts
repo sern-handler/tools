@@ -1,4 +1,4 @@
-declare module 'index.js';
+declare module 'poster.*';
 
 import type { paths } from './discord.d.ts'
 

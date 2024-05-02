@@ -1,4 +1,4 @@
-(ns core.actions)
+(ns actions)
 
 
 (def routes {
@@ -22,8 +22,7 @@
         [url (fn [body headers] 
                 #js { "method" method 
                       "headers" headers
-                      "body" (.stringify js/JSON body )}) 
-         ]))
+                      "body" (js/JSON.stringify body)}) ]))
 
 
 (def actions (into {} 

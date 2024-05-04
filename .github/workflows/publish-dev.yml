@@ -18,14 +18,11 @@ jobs:
       - run: corepack enable
       - run: yarn
       - run: yarn config set npmAuthToken ${{ secrets.NPM_TOKEN }}
-      # for every package in the monorepo, publish it to npm
       - name: Bump Version & Publish
         run: |
-          # Resolve the tag to be used. "dev" for push events, "pr-{prNumber}" for dispatch events.
-          TAG=$([[ ${{ github.event_name }} == 'push' ]])
           yarn config set npmAuthToken ${NODE_AUTH_TOKEN}
           yarn config set npmPublishRegistry "https://registry.yarnpkg.com"
-          yarn workspaces foreach --all -pt bump --preid "${TAG}.$(git rev-parse --verify --short HEAD)"
-          yarn workspaces foreach --all -pt yarn publish --tag ${TAG}
+          yarn workspaces foreach --all -pt bump --preid "dev.$(git rev-parse --verify --short HEAD)"
+          yarn workspaces foreach --all -pt yarn publish --tag dev
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

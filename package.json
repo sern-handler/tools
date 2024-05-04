@@ -5,6 +5,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "postinstall": "yarn workspace @sern/builder bundle;yarn workspace @sern/poster gen-discord-types;yarn workspace @sern/poster poster:prod"
+  },
   "devDependencies": {
     "@types/node": "^18.16.0",
     "openapi-typescript": "^6.7.2",

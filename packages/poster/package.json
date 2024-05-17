@@ -1,6 +1,6 @@
 {
   "name": "@sern/poster",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Post discord application commands",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.mjs",

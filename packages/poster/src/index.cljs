@@ -8,7 +8,7 @@
   (-> (str base remaining-url)
       (s/replace #"\{application\.id\}" (or (.-app_id ^js opts) ""))
       (s/replace #"\{guild\.id\}" (or (.-guild_id ^js opts) ""))
-      (s/replace #"\{user\.id\}" (or (.-guild_id ^js opts) ""))
+      (s/replace #"\{user\.id\}" (or (.-user_id ^js opts) ""))
       (s/replace #"\{command\.id\}" (or (.-command_id ^js opts) ""))))
 
 (defn- ?params [^js query]
@@ -29,7 +29,10 @@
      (^:async fn [action opts]
       (let [[url mkrequest]  (get actions action)
             appid (js-await (fetch-application header))
-            options {:app_id appid :guild_id (.-guild_id opts) :command_id (.-command_id opts)} 
+            options {:app_id appid 
+                     :guild_id (.-guild_id opts) 
+                     :command_id (.-command_id opts)
+                     :user_id    (.-user_id opts) } 
             url (new js/URL (inject url options)) ]
         (set! (.-search url) (?params (.-query opts))) 
         (js/fetch url (mkrequest (.-body opts) header))))))

@@ -1,4 +1,3 @@
-declare module 'poster.*';
 
 import type { paths } from './discord.d.ts'
 
@@ -13,6 +12,7 @@ export type GuildGet = paths["/applications/{application_id}/guilds/{guild_id}/c
 export type GuildEdit = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["patch"]
 export type GuildDelete = paths["/applications/{application_id}/guilds/{guild_id}/commands/{command_id}"]["delete"]
 export type GuildPut = paths["/applications/{application_id}/guilds/{guild_id}/commands"]["put"]
+export type UserGet  = paths["/users/{user_id}"]['get']
 export type ApplicationMe = paths["/applications/@me"]['get']
 
 type ResponsesForRoute<T> = T extends { responses: infer R } ? R : never;
@@ -57,7 +57,8 @@ interface RoutesOptions {
   "guild/put": [{ body: GuildPut["requestBody"]["content"]['application/json']} 
                   & GuildPut["parameters"]["path"] 
                   & { application_id?: never }];
-  "application/me": []
+  "application/me": [];
+  "user/get" : [UserGet['parameters']['path'] & { application_id?: never } ]
 }
 
 

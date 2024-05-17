@@ -1,8 +1,8 @@
-import poster from '../dist/poster.mjs';
+import poster from '../dist/index.mjs';
 
-const send = await poster.client("token");
+const send = poster.client("token");
 
-const req = await send("global/get-all", { 
+const req = await send("user/get", { 
     
 });
 

@@ -1,10 +1,10 @@
 {
   "name": "@sern/poster",
-  "version": "1.2.1",
+  "version": "1.2.5",
   "description": "Post discord application commands",
-  "exports": {
-    ".": "./dist/poster.mjs"
-  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
   "scripts": {
     "poster:debug": "npx squint compile",
     "poster:prod": "npx squint compile",
@@ -14,11 +14,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "files": [
+    "dist",
+    "README.md",
+    "src",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public",
     "tag": "latest"
   },
   "dependencies": {
     "squint-cljs": "latest"
-  }
+  },
+  "type": "module"
 }

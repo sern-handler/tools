@@ -8,11 +8,11 @@
   (-> (str base remaining-url)
       (s/replace #"\{application\.id\}" (or (.-app_id ^js opts) ""))
       (s/replace #"\{guild\.id\}" (or (.-guild_id ^js opts) ""))
+      (s/replace #"\{user\.id\}" (or (.-guild_id ^js opts) ""))
       (s/replace #"\{command\.id\}" (or (.-command_id ^js opts) ""))))
 
 (defn- ?params [^js query]
   (new js/URLSearchParams query))
-
 
 (defn- fetch-application [headers] 
     (let [url (str base (first (get actions "application/me")))]

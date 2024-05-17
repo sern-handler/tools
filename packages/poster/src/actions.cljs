@@ -15,6 +15,7 @@
        :guild/delete   ["DELETE" "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}"]
        :guild/put      ["PUT" "/applications/{application.id}/guilds/{guild.id}/commands"]
        :application/me ["GET"  "/applications/@me"]
+       :user/get       ["GET" "/users/{user.id}"]
 })
 
 (defn- request-init [v]  

@@ -16,6 +16,11 @@
        :guild/put      ["PUT" "/applications/{application.id}/guilds/{guild.id}/commands"]
        :application/me ["GET"  "/applications/@me"]
        :user/get       ["GET" "/users/{user.id}"]
+       ; need to add typings for these
+       :me/guilds      ["GET" "/users/@me/guilds"]
+       :me/member      ["GET" "/users/@me/guilds/{guild.id}/member"]
+       :me/guild-leave ["DELETE", "/users/@me/guilds/{guild.id}"]
+       :me/connections ["GET", "/users/@me/connections"]
 })
 
 (defn- request-init [v]  

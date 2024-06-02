@@ -32,7 +32,7 @@ jobs:
         working-directory: ./packages/poster
       - run: yarn poster:prod
         working-directory: ./packages/poster
-      - run: yarn npm publish
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         working-directory: ./packages/${{ github.event.inputs.package }}

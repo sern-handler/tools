@@ -5,26 +5,36 @@ name: Node.js Package
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
+    inputs:
+      package:
+        type: choice
+        description: "Package to publish"
+        required: true
+        options:
+          - poster
+          - builder
+          - ioc
 
 jobs:
   publish-npm:
+    name: Publish to NPM
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - run: corepack enable 
+          node-version: 20
+          cache: yarn
+          registry-url: https://registry.yarnpkg.com/
+      - run: corepack enable
       - run: yarn set version classic
-      - run: yarn install
+      - run: yarn install --immutable
+        working-directory: ./packages/${{ github.event.inputs.package }}
       - run: yarn gen-discord-types
         working-directory: ./packages/poster
       - run: yarn poster:prod
         working-directory: ./packages/poster
-      - run: npm publish
+      - run: yarn npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-        working-directory: ./packages/poster
+        working-directory: ./packages/${{ github.event.inputs.package }}

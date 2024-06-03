@@ -29,10 +29,8 @@ jobs:
       - run: yarn set version classic
       - run: yarn install --immutable
         working-directory: ./packages/${{ github.event.inputs.package }}
-      - run: yarn gen-discord-types
-        working-directory: ./packages/poster
-      - run: yarn poster:prod
-        working-directory: ./packages/poster
+      - run: yarn build
+        working-directory: ./packages/${{ github.event.inputs.package }}
       - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

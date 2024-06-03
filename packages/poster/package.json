@@ -8,6 +8,7 @@
   "scripts": {
     "poster:debug": "npx squint compile",
     "poster:prod": "npx squint compile",
+    "build": "npm run gen-discord-types && npx squint compile",
     "gen-discord-types": "npx openapi-typescript https://raw.githubusercontent.com/discord/discord-api-spec/main/specs/openapi.json --output ./src/discord.d.ts",
     "repl": "npx squint repl"
   },

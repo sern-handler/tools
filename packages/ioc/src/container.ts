@@ -1,7 +1,7 @@
 
 function hasCallableMethod(obj: object, name: PropertyKey) {
-    //@ts-ignore
-    return Object.hasOwn(obj, name) && typeof obj[name] == 'function';
+    // object will always be defined
+    return typeof obj[name] == 'function';
 }
 /**
  * A Depedency injection container capable of adding singletons, firing hooks, and managing IOC within an application

@@ -35,13 +35,14 @@ class ShrimpleLocalizer implements Init {
     private async readLocalizationDirectory() {
         const translationFiles = [];
         const localPath = resolve('assets', 'locals');
+        console.log(localPath)
         assert(existsSync(localPath), "No directory \"assets/locals\" found for the localizer")
         for(const json_path of await fs.readdir(localPath)) {
            const parsed = JSON.parse(await fs.readFile(join(localPath, json_path), 'utf8'))
            const name = json_path.substring(0, json_path.lastIndexOf('.'));
            translationFiles.push({ [name]: parsed })
         }
-        return translationFiles.reduce((acc, cur ) => ({ ...cur, ...acc }),  {});
+        return translationFiles.reduce((acc, cur) => ({ ...cur, ...acc }),  {});
     }
 }
 
@@ -55,18 +56,6 @@ class ShrimpleLocalizer implements Init {
   */
 export const local  = (i: string, local: string) => {
     return Service('localizer').translate(i, local)
-}
-
-/**
-  * Returns a record of locales to their respective translations.
-  * Note: this method only works AFTER your container has been initiated
-  * @example
-  * ```ts
-  * assert.deepEqual(localsFor("salute.hello"), { "en-US": "hello", "es": "hola" })
-  * ```
-  */
-export const localsFor = (path: string) => {
-    return Service('localizer').translationsFor(path) 
 }
 
 
@@ -109,7 +98,7 @@ export const localize = (root?: string) =>
  * @example 
  *  ```ts
  *  await makeDependencies(({ add }) => {
- *      add('@sern/localizer', Localization()); 
+ *      add('localizer', Localization()); 
  *  });
  * ```
  **/

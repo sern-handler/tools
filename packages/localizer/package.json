@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "test": "vitest"
   },
   "dependencies": {

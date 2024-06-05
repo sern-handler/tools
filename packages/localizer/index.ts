@@ -87,9 +87,10 @@ export const localize = (root?: string) =>
             updateModule({ 
                 options: newOpts
             });
+            return controller.next();
         } else {
             console.error("Cannot localize this type of module");
-            return controller.next();
+            return controller.stop();
         }
 })
 

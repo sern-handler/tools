@@ -4,7 +4,8 @@ import fs from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path';
 import assert from 'node:assert';
-import { applyLocalization, dfsApplyLocalization } from './internal'
+import { dfsApplyLocalization } from './internal'
+
 
 /**
  * @since 3.4.0
@@ -12,7 +13,7 @@ import { applyLocalization, dfsApplyLocalization } from './internal'
  */
 class ShrimpleLocalizer implements Init {
     private __localization!: LocalsProvider;
-    currentLocale: string = "en-US";
+    currentLocale: string = "en";
 
     translationsFor(path: string): Record<string, any> {
         return this.__localization.localizationFor(path);
@@ -27,7 +28,7 @@ class ShrimpleLocalizer implements Init {
         const map = await this.readLocalizationDirectory();
         this.__localization = new LocalsProvider({
             defaultLocale: this.currentLocale,
-            fallbackLocale: "en-US",
+            fallbackLocale: "en",
             locales: map
         });
     }
@@ -35,7 +36,6 @@ class ShrimpleLocalizer implements Init {
     private async readLocalizationDirectory() {
         const translationFiles = [];
         const localPath = resolve('assets', 'locals');
-        console.log(localPath)
         assert(existsSync(localPath), "No directory \"assets/locals\" found for the localizer")
         for(const json_path of await fs.readdir(localPath)) {
            const parsed = JSON.parse(await fs.readFile(join(localPath, json_path), 'utf8'))
@@ -59,11 +59,15 @@ export const local  = (i: string, local: string) => {
 }
 
 
+
+
 /**
   * An init plugin to add localization fields to a command module.
   * Your localization configuration should look like,
+  * @param root {string} If you have conflicting command names, you may configure the root of the name. (= command/{root})
   * Below is es.json (spanish)
-  * {
+  * ```json
+    {
         "command/comer" : {
             "description": "Comer en Texas",
             "options": {
@@ -74,13 +78,16 @@ export const local  = (i: string, local: string) => {
             }
         }
     }
+    ```
   */
 export const localize = (root?: string) =>
     //@ts-ignore
     CommandInitPlugin(({ updateModule, module, deps }) => {
         if(module.type === CommandType.Slash || module.type === CommandType.Both) {
-            const resolvedLocalization= 'command/'+root??module.name;
-            applyLocalization(module, [resolvedLocalization, resolvedLocalization+'.description'], [], deps)
+            deps['@sern/logger'].info({ message: "Localizing "+ module.name });
+            const resolvedLocalization= 'command/'+(root??module.name);
+            Reflect.set(module, 'name_localizations', deps.localizer.translationsFor(resolvedLocalization+".name"));
+            Reflect.set(module, 'description_localizations', deps.localizer.translationsFor(resolvedLocalization+'.description'));
             const newOpts = module.options ?? [];
             //@ts-ignore 
             dfsApplyLocalization(newOpts, deps, [resolvedLocalization]);
@@ -89,8 +96,8 @@ export const localize = (root?: string) =>
             });
             return controller.next();
         } else {
-            console.error("Cannot localize this type of module");
-            return controller.stop();
+            //@ts-ignore
+            return controller.stop("Cannot localize this type of module " + module.name);
         }
 })
 
@@ -108,5 +115,5 @@ export const Localization = (defaultLocale?: string) => {
     if (defaultLocale) {
         localizer.currentLocale = defaultLocale;
     }
-    return localizer; 
+    return localizer as {}; 
 }

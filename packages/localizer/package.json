@@ -9,7 +9,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "shrimple-locales": "^0.2.0"
+    "shrimple-locales": "^0.2.1"
   },
   "devDependencies": {
     "@sern/handler": "^3.3.0",

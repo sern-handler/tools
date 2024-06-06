@@ -5,11 +5,12 @@ export interface Option {
     options?: Array<Option> 
 }
 
+//Add props[i]_localizations fields to the current item
 export const applyLocalization  = 
     (item: Option, props: string[], basePath: string[], deps: any) => {
     for(const n of props) {
         const translated: string = deps.localizer.translationsFor(basePath.concat(n).join('.'))
-        Reflect.set(item, n+'_localizations', translated) 
+            Reflect.set(item, n+'_localizations', translated) 
     }
 }
 
@@ -19,31 +20,31 @@ export function dfsApplyLocalization(
     deps: Record<string,unknown>,
     path: string[]) {
 
-  function dfs(item: Option, path: string[]) {
-    const basePath = [...path, item.name]
-    if (item.type === 1) {
-        for (const subItem of item?.options??[]) {
-            dfs(subItem, [...basePath, subItem.name]);
-        }
-    } else if (item.type === 2) {
-        for (const subItem of item?.options??[]) {
-            dfs(subItem, [...basePath, subItem.name]);
-        }
-    } else {
-        //@ts-ignore
-        if(Reflect.has(item, 'choices') && Array.isArray(item.choices)) {
+    function dfs(item: Option, path: string[]) {
+        const basePath = path
+        if (item.type === 1) {
+            for (const subItem of item?.options??[]) {
+                dfs(subItem, [...basePath, subItem.name]);
+            }
+        } else if (item.type === 2) {
+            for (const subItem of item?.options??[]) {
+                dfs(subItem, [...basePath, subItem.name]);
+            }
+        } else {
             //@ts-ignore
-            for(const choice of item.choices) {
-                applyLocalization(choice, ['name'], [...basePath, 'choices'], deps)
+            if(Reflect.has(item, 'choices') && Array.isArray(item.choices)) {
+                //@ts-ignore
+                for(const choice of item.choices) {
+                    applyLocalization(choice, ['name'], [...basePath, 'choices'], deps)
+                }
             }
         }
+        applyLocalization(item, ['name', 'description'], basePath, deps)
     }
-    applyLocalization(item, ['name', 'description'], basePath, deps)
-  }
 
-  for (const item of items) {
-    dfs(item, [...path, 'options', item.name]);
-  }
+    for (const item of items) {
+        dfs(item, [...path, 'options', item.name]);
+    }
 }
 
 

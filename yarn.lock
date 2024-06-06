@@ -509,7 +509,7 @@ __metadata:
   dependencies:
     "@sern/handler": ^3.3.0
     discord.js: ^14.15.3
-    shrimple-locales: ^0.2.0
+    shrimple-locales: ^0.2.1
     vitest: ^1.2.2
   languageName: unknown
   linkType: soft
@@ -2023,10 +2023,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shrimple-locales@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "shrimple-locales@npm:0.2.0"
-  checksum: 9b5360e6ca5b2e75fdbaaeee0286015294b64773950924088f6088184f010837a89e84101eddfedcda5dd660a97df84fee6e1e95345e01f7e1edfff6b4ff2341
+"shrimple-locales@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "shrimple-locales@npm:0.2.1"
+  checksum: 18ed74cf56d7611e5cc83a38527f401eadaa20d4f50cc61c05a93edd22c61987d017a784216b30615f0dc4a0553ab9418fb64f7a4270d2f88b88f087da938cb5
   languageName: node
   linkType: hard
 
@@ -2278,7 +2278,7 @@ __metadata:
 
 "typescript@patch:typescript@^5.0.0#~builtin<compat/typescript>":
   version: 5.4.5
-  resolution: "typescript@patch:typescript@npm%3A5.4.5#~builtin<compat/typescript>::version=5.4.5&hash=f3b441"
+  resolution: "typescript@patch:typescript@npm%3A5.4.5#~builtin<compat/typescript>::version=5.4.5&hash=14eedb"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

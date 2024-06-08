@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "dependencies": {
     "shrimple-locales": "^0.2.1"

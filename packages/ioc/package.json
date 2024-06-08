@@ -4,7 +4,8 @@
   "description": "Dependency Injection system",
   "main": "dist/index.js",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest --run",
+    "build": "tsc"
   },
   "devDependencies": {
     "vitest": "^1.0.0"

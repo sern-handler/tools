@@ -28,10 +28,12 @@ jobs:
       - run: corepack enable
       - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - run: yarn set version classic
-      - run: yarn install --immutable
         working-directory: ./packages/${{ github.event.inputs.package }}
       - run: yarn build
         working-directory: ./packages/${{ github.event.inputs.package }}
+      - run: yarn test 
+        working-directory: ./packages/${{ github.event.inputs.package }}
+      - run: yarn install --immutable
       - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

@@ -85,7 +85,7 @@ export const local  = (i: string, local: string) => {
   */
 export const localize = (root?: string) =>
     //@ts-ignore
-    CommandInitPlugin(({ updateModule, module, deps }) => {
+    CommandInitPlugin(({ module, deps }) => {
         if(module.type === CommandType.Slash || module.type === CommandType.Both) {
             deps['@sern/logger'].info({ message: "Localizing "+ module.name });
             const resolvedLocalization= 'command/'+(root??module.name);
@@ -94,9 +94,6 @@ export const localize = (root?: string) =>
             const newOpts = module.options ?? [];
             //@ts-ignore 
             dfsApplyLocalization(newOpts, deps, [resolvedLocalization]);
-            updateModule({ 
-                options: newOpts
-            });
             return controller.next();
         } else {
             //@ts-ignore

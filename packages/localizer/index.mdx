@@ -27,27 +27,49 @@ await makeDependencies(({ add }) => {
     add('localizer', Localization());
 });
 ```
-** This localizer is **FILE BASED**.
+This localizer is **FILE BASED**.
 Create the directory `assets/locals`. Each json file in here must be named after the `locale`
-```json title="~/assets/locals/es.json
-{
-    "salute": {
-        "hello": "hola"
-    }
-}
 
-``` 
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+<Tabs>
+  <TabItem label="Spanish">
+    ```json title=~/assets/locals/es.json
+        {
+            "salute": {
+                "hello": "hola"
+            }
+        }
+    ``` 
+  </TabItem>
+  <TabItem label="English">
+    ```json title=~/assets/locals/en-US.json
+        {
+            "salute": {
+                "hello": "hola"
+            }
+        }
+    ``` 
+  </TabItem>
+</Tabs>
+
 
 
 **Accessing translations**
 - If you are in a command execute callback, use `deps` from SDT.
 ```ts 
 execute : (ctx, { deps }) => {
+    //the localizer object from makeDependencies
     deps.localizer
-    deps.localizer.translate("salute.hello", "es"); // Returns the Spanish translation for 'salute.hello'
+    // Returns the Spanish translation for 'salute.hello'
+    deps.localizer.translate("salute.hello", "es"); 
 }
-
 ```
+
+
+```ts
 import { local } from '@sern/localizer';
 
-const greeting = local('salute.hello', 'es'); // Returns the Spanish translation for 'salute.hello'
+// Returns the Spanish translation for 'salute.hello'
+const greeting = local('salute.hello', 'es'); 
+```

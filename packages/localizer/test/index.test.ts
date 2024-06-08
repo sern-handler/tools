@@ -61,11 +61,19 @@ describe('dfsApplyLocalization', () => {
         options: [{ type: 3, name: 'subItem1' }],
       },
     ];
-    const deps = { localizer: { translationsFor: vi.fn() } };
+    const deps = { localizer: { translationsFor: vi.fn(() => true) } };
     const path = ['root'];
 
     dfsApplyLocalization(items, deps, path);
-    
+    expect(items).to.deep.equal([
+      {
+        name: 'item1',
+        type: 1,
+        options: [{ type: 3, name: 'subItem1', name_localizations: true, description_localizations: true }],
+        name_localizations: true,
+        description_localizations: true
+      },
+    ])
   });
 
   it('should apply localizations to choices', () => {
@@ -80,19 +88,15 @@ describe('dfsApplyLocalization', () => {
     const path = ['root'];
 
     dfsApplyLocalization(items, deps, path);
-    console.log(items[0].choices)
+    expect(items).to.deep.equal([ 
+        {
+            name: 'item1',
+            name_localizations: 'a',
+            description_localizations: 'a',
+            //@ts-ignore
+            choices: [{ name: 'choice1', name_localizations: 'a' },
+                      { name: 'choice2', name_localizations: 'a' }],
+        }
+    ])
   });
-  it('should call applyLocalization n times, n = num of options', () => {
-    
-    const items: Option[] = [
-      {
-        name: 'item1',
-        type: 3,
-      },
-      {
-        name: "item2",
-        type: 4
-      }
-    ];
-  })
 });

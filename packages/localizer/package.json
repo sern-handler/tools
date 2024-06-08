@@ -1,0 +1,26 @@
+{
+  "name": "@sern/localizer",
+  "version": "1.1.0",
+  "description": "Localizer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "shrimple-locales": "^0.2.1"
+  },
+  "devDependencies": {
+    "@sern/handler": "^3.3.0",
+    "discord.js": "^14.15.3",
+    "vitest": "^1.2.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  }
+}

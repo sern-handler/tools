@@ -13,15 +13,18 @@ import { dfsApplyLocalization } from './internal'
  */
 class ShrimpleLocalizer implements Init {
     private __localization!: LocalsProvider;
-    currentLocale: string = "en";
+    private currentLocale: string = "en";
 
     translationsFor(path: string): Record<string, any> {
         return this.__localization.localizationFor(path);
     }
 
-    translate(text: string, local: string): string {
+    translate(text: string, local?: string): string {
+        return this.__localization.get(text, local);
+    }
+
+    setCurrentLocale(local: string): void {
         this.__localization.changeLanguage(local);
-        return this.__localization.get(text);
     }
 
     async init() {
@@ -101,6 +104,32 @@ export const localize = (root?: string) =>
         }
 })
 
+export interface Localizer {
+   /**
+    * Returns an object containing translations for the given path.
+    * The object keys are the translation keys, and the values are the translated strings.
+    * 
+    * @param path - The path to the translations file or directory.
+    * @returns An object with translation keys and their corresponding translated strings.
+    */
+   translationsFor(path: string): Record<string, any>;
+
+   /**
+    * Translates the given text to the specified locale.
+    *
+    * @param text - The text to be translated.
+    * @param locale - The locale to translate the text to.
+    * @returns The translated text.
+    */
+   translate(text: string, locale?: string): string;
+
+   /**
+    * Sets the current locale to be used for translation.
+    * @param locale - The locale to set as the current locale.
+    */
+   setCurrentLocale(locale: string): void;
+}
+
 /**
  * A service which provides simple file based localization. Add this while making dependencies.
  * @example 
@@ -113,7 +142,7 @@ export const localize = (root?: string) =>
 export const Localization = (defaultLocale?: string) => {
     const localizer = new ShrimpleLocalizer;
     if (defaultLocale) {
-        localizer.currentLocale = defaultLocale;
+        localizer.setCurrentLocale(defaultLocale);
     }
-    return localizer as {}; 
+    return localizer as Localizer;
 }

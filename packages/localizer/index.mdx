@@ -1,0 +1,53 @@
+---
+title: Localizer 
+description: Translate your bot for the world 
+sidebar:
+  order: 1
+---
+
+
+# @sern/localizer
+
+A localization module for managing translations and providing localized content in your application.
+
+## Installation
+
+```
+npm i @sern/localizer
+```
+
+## Usage
+
+**Initializing the Localizer**
+```ts 
+import { makeDependencies } from '@sern/handler';
+import { Localization } from '@sern/localizer';
+
+await makeDependencies(({ add }) => {
+    add('localizer', Localization());
+});
+```
+** This localizer is **FILE BASED**.
+Create the directory `assets/locals`. Each json file in here must be named after the `locale`
+```json title="~/assets/locals/es.json
+{
+    "salute": {
+        "hello": "hola"
+    }
+}
+
+``` 
+
+
+**Accessing translations**
+- If you are in a command execute callback, use `deps` from SDT.
+```ts 
+execute : (ctx, { deps }) => {
+    deps.localizer
+    deps.localizer.translate("salute.hello", "es"); // Returns the Spanish translation for 'salute.hello'
+}
+
+```
+import { local } from '@sern/localizer';
+
+const greeting = local('salute.hello', 'es'); // Returns the Spanish translation for 'salute.hello'

@@ -1,0 +1,26 @@
+{
+  "name": "@sern/publisher",
+  "version": "1.1.0",
+  "description": "Localizer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "@sern/handler": "^3.3.0",
+    "discord.js": "^14.15.3",
+    "vitest": "^1.2.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
+  "dependencies": {
+    "@parcel/watcher": "^2.4.1"
+  }
+}

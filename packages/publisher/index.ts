@@ -105,7 +105,7 @@ export class Publisher implements Init {
                      })
             const [globalCommands, guildedCommands] = modules.reduce(
                 ([globals, guilded], module) => {
-                    const isPublishableGlobally = !module[PUBLISH]?.[GUILD_IDS];
+                    const isPublishableGlobally = !module[PUBLISH] || !Array.isArray(module[PUBLISH].guildIds);
                     if (isPublishableGlobally) {
                         return [[module, ...globals], guilded];
                     }
@@ -127,7 +127,7 @@ export class Publisher implements Init {
             const guildIdMap: Map<string, CommandModule[]> = new Map();
             const responsesMap = new Map();
             guildedCommands.forEach((entry) => {
-                const guildIds: string[] = entry[GUILD_IDS] ?? []; 
+                const guildIds: string[] = entry[PUBLISH].guildIds ?? []; 
                 if (guildIds) {
                     guildIds.forEach((guildId) => {
                         if (guildIdMap.has(guildId)) {
@@ -192,7 +192,7 @@ export interface PublishConfig {
     guildIds?: string[];
     defaultMemberPermissions?: ValidMemberPermissions;
     integrationTypes?: Array<'Guild'|'User'>
-    contexts: number[]
+    contexts?: number[]
 }
 
 export type ValidPublishOptions = 
@@ -208,18 +208,18 @@ export const publishConfig = (config: ValidPublishOptions) => {
             return controller.stop("Cannot publish this module");
         }
         let _config=config
-         if(typeof _config === 'function') {
-            _config = _config(absPath, module);
-         }
-         const { contexts, defaultMemberPermissions, integrationTypes } = _config
-         //adding extra configuration
-         Reflect.set(module, PUBLISH, {
-             [GUILD_IDS]: _config.guildIds,
-             default_member_permissions: serializePermissions(defaultMemberPermissions),
-             integration_types: integrationTypes,
-             contexts
-         })
-         return controller.next();
+        if(typeof _config === 'function') {
+           _config = _config(absPath, module);
+        }
+        const { contexts, defaultMemberPermissions, integrationTypes } = _config
+        //adding extra configuration
+        Reflect.set(module, PUBLISH, {
+            guildIds: _config.guildIds,
+            default_member_permissions: serializePermissions(defaultMemberPermissions),
+            integration_types: integrationTypes,
+            contexts
+        })
+        return controller.next();
     }) 
 }
 

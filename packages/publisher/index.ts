@@ -2,7 +2,7 @@ import type { Init, CommandModule, Emitter, Logging } from '@sern/handler'
 import { controller, CommandInitPlugin } from '@sern/handler'
 import { writeFile } from 'node:fs/promises';
 import { inspect } from 'node:util';
-
+import type { PermissionFlagsBits } from 'discord.js'
 
 const optionsTransformer = (ops?: Array<{ type: number }>) => {
     return ops?.map((el) => {
@@ -78,16 +78,17 @@ export class Publisher implements Init {
                             [PUBLISH]: module[PUBLISH],
                             toJSON() {
                                 const applicationType = intoApplicationType(module.type);
-                                //@ts-ignore
-                                const { defaultMemberPermissions, integrationTypes, contexts } = module[PUBLISH] ?? {};
+                                const { default_member_permissions,    
+                                        integration_types,//@ts-ignore
+                                        contexts } = module[PUBLISH] ?? {};
                                 return {
                                     name: module.name, type: applicationType,
                                     //@ts-ignore 
                                     description: makeDescription(applicationType, module.description),
                                     //@ts-ignore shutup
                                     options: optionsTransformer(module?.options),
-                                    default_member_permissions: serializePermissions(defaultMemberPermissions),
-                                    integration_types: (integrationTypes ?? ['Guild']).map(
+                                    default_member_permissions,
+                                    integration_types: (integration_types ?? ['Guild']).map(
                                         (s: string) => {
                                             if(s === "Guild") return "0";
                                             else if (s == "User") return "1";
@@ -118,7 +119,7 @@ export class Publisher implements Init {
                 body: JSON.stringify(globalCommands)
             })
             if(resultGlobal.ok) {
-                this.logger.info({ message: "GLOBAL: OK" })
+                this.logger.info({ message: "published all global commands" })
             } else {
                 this.logger.info({ message: inspect(await resultGlobal.json(), false, Infinity ) })
             }
@@ -179,21 +180,25 @@ export class Publisher implements Init {
     }
 }
 
-type ValidMemberPermissions = 
+export type ValidMemberPermissions = 
+    | typeof PermissionFlagsBits  //discord.js enum
+    | Array<typeof PermissionFlagsBits> 
     | string //must be a stringified number
     | bigint
 
-interface PublishConfig {
+export interface PublishConfig {
     guildIds?: string[];
-    defaultMemberPermissions: ValidMemberPermissions;
+    defaultMemberPermissions?: ValidMemberPermissions;
+    integrationTypes?: Array<'Guild'|'User'>
+    contexts: number[]
 }
 
-type ValidPublishOptions = 
+export type ValidPublishOptions = 
     | PublishConfig
     | ((absPath: string, module: CommandModule) => PublishConfig)
 
 
-export const serialize = (config: ValidPublishOptions) => {
+export const publishConfig = (config: ValidPublishOptions) => {
 
     return CommandInitPlugin(({ module, absPath }) => { 
         if((module.type & PUBLISHABLE) === 0) {
@@ -204,9 +209,13 @@ export const serialize = (config: ValidPublishOptions) => {
          if(typeof _config === 'function') {
             _config = _config(absPath, module);
          }
+         const { contexts, defaultMemberPermissions, integrationTypes } = _config
          //adding extra configuration
          Reflect.set(module, PUBLISH, {
              [GUILD_IDS]: _config.guildIds,
+             default_member_permissions: serializePermissions(defaultMemberPermissions),
+             integration_types: integrationTypes,
+             contexts
          })
          return controller.next();
     }) 

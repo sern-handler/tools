@@ -1,14 +1,17 @@
 import type { Init, CommandModule, Emitter, Logging } from '@sern/handler'
 import { controller, CommandInitPlugin } from '@sern/handler'
+import { writeFile } from 'node:fs/promises';
+import { inspect } from 'node:util';
 
-const optionsTransformer = (ops: Array<{ type: number }>) => {
-    return ops.map((el) => {
+
+const optionsTransformer = (ops?: Array<{ type: number }>) => {
+    return ops?.map((el) => {
         if ('command' in el) {
             const { command, ...rest } = el;
             return rest;
         }
         return el;
-    });
+    }) ?? [];
 };
 
 const intoApplicationType = (type: number) => 
@@ -36,9 +39,8 @@ const serializePermissions = (permissions: unknown) => {
 }
 const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
-const IS_GUILDED = Symbol.for('@@guilded')
-const IS_GLOBAL = Symbol.for('@@global')
-
+const GUILD_IDS = Symbol.for('GUILD_IDS')
+const PUBLISH = Symbol.for('@sern/publish')
 export class Publisher implements Init {
     constructor(
         private modules: Map<string, CommandModule>,
@@ -47,6 +49,9 @@ export class Publisher implements Init {
     ) {}
 
     async init() {
+        if(!process.env.DISCORD_TOKEN) {
+            throw Error("No token found to publish. add DISCORD_TOKEN to .env");
+        }
         const headers = {
             Authorization: 'Bot ' + process.env.DISCORD_TOKEN,
             'Content-Type': 'application/json',
@@ -61,19 +66,115 @@ export class Publisher implements Init {
             throw e;
         }
         const GLOBAL_URL = new URL(`${appid}/commands`, BASE_URL);
-        this.sernEmitter.addListener('modulesLoaded', () => {
+
+        const listener = async () => {
             this.logger.info({ message: 'publishing modules' });
-            const modules = Array.from(this.modules.values())
-                                 .filter(module => (module.type & PUBLISHABLE) != 0)
+            const modules = 
+                Array.from(this.modules.values())
+                     .filter(module => (module.type & PUBLISHABLE) != 0)
+                     .map(module => {
+                        return {
+                            //@ts-ignore
+                            [PUBLISH]: module[PUBLISH],
+                            toJSON() {
+                                const applicationType = intoApplicationType(module.type);
+                                //@ts-ignore
+                                const { defaultMemberPermissions, integrationTypes, contexts } = module[PUBLISH] ?? {};
+                                return {
+                                    name: module.name, type: applicationType,
+                                    //@ts-ignore 
+                                    description: makeDescription(applicationType, module.description),
+                                    //@ts-ignore shutup
+                                    options: optionsTransformer(module?.options),
+                                    default_member_permissions: serializePermissions(defaultMemberPermissions),
+                                    integration_types: (integrationTypes ?? ['Guild']).map(
+                                        (s: string) => {
+                                            if(s === "Guild") return "0";
+                                            else if (s == "User") return "1";
+                                            else throw Error("IntegrationType is not one of Guild or User");
+                                        }),
+                                    contexts,
+                                    //@ts-ignore
+                                    name_localizations: module.name_localizations, 
+                                    //@ts-ignore
+                                    description_localizations: module.description_localizations
+                                }
+                            }
+                        }
+                     })
             const [globalCommands, guildedCommands] = modules.reduce(
                 ([globals, guilded], module) => {
                     //@ts-ignore
-                    const isPublishableGlobally = module[IS_GLOBAL];
+                    const isPublishableGlobally = !module[PUBLISH]?.[GUILD_IDS];
                     if (isPublishableGlobally) {
                         return [[module, ...globals], guilded];
                     }
                     return [globals, [module, ...guilded]];
-                }, [[], []] as [CommandModule[], CommandModule[]]);
+                }, [[], []] as [any[], any[]]);
+
+            const resultGlobal = await fetch(GLOBAL_URL, { 
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(globalCommands)
+            })
+            if(resultGlobal.ok) {
+                this.logger.info({ message: "GLOBAL: OK" })
+            } else {
+                this.logger.info({ message: inspect(await resultGlobal.json(), false, Infinity ) })
+            }
+            const guildIdMap: Map<string, CommandModule[]> = new Map();
+            const responsesMap = new Map();
+            guildedCommands.forEach((entry) => {
+                const guildIds: string[] = entry[GUILD_IDS] ?? []; 
+                if (guildIds) {
+                    guildIds.forEach((guildId) => {
+                        if (guildIdMap.has(guildId)) {
+                            guildIdMap.get(guildId)?.push(entry);
+                        } else {
+                            guildIdMap.set(guildId, [entry]);
+                        }
+                    });
+                }
+            });
+            for (const [guildId, array] of guildIdMap.entries()) {
+                const guildCommandURL = new URL(`${appid}/guilds/${guildId}/commands`, BASE_URL);
+                const response = await fetch(guildCommandURL, {
+                    method: 'PUT',
+                    body: JSON.stringify(array),
+                    headers,
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    this.logger.info({ message: guildId + " published succesfully" })
+                    responsesMap.set(guildId, result);
+                } else {
+                    switch(response.status) {
+                        case 400 : {
+                            console.error(inspect(result, { depth: Infinity }))
+                            console.error("Modules with validation errors:" 
+                            + inspect(Object.keys(result.errors).map(idx => array[idx as any])))
+                            throw Error("400: Ensure your commands have proper fields and data and nothing left out");
+                        }
+                        case 404 : {
+                            console.error(inspect(result, { depth: Infinity }))
+                            throw Error("Forbidden 404. Is you application id and/or token correct?")
+                        }
+                        case 429: {
+                            console.error(inspect(result, { depth: Infinity }))
+                            throw Error('Chill out homie, too many requests')
+                        }
+                    }
+                }
+            }
+            await writeFile(
+                '.sern/command-data-remote.json',
+                JSON.stringify({ global: await resultGlobal.json(),
+                               ...Object.fromEntries(responsesMap) }, null, 4),
+                'utf8')
+        }
+        this.sernEmitter.addListener('modulesLoaded', () => { 
+            listener(); 
+            this.sernEmitter.removeListener('modulesLoaded', listener);
         })
     }
 }
@@ -95,37 +196,17 @@ type ValidPublishOptions =
 export const serialize = (config: ValidPublishOptions) => {
 
     return CommandInitPlugin(({ module, absPath }) => { 
+        if((module.type & PUBLISHABLE) === 0) {
+            //@ts-ignore
+            return controller.stop("Cannot publish this module");
+        }
         let _config=config
          if(typeof _config === 'function') {
             _config = _config(absPath, module);
          }
-         if(_config.guildIds) {
-            Reflect.set(module, IS_GUILDED, true)
-         } else {
-            Reflect.set(module, IS_GLOBAL, true)
-         }
-         Reflect.set(module, 'toJSON', function () {
-                const applicationType = intoApplicationType(module.type);
-                return {
-                    name: module.name,
-                    type: applicationType,
-                    description: makeDescription(applicationType, module.description),
-                    options: optionsTransformer(module?.options ?? []),
-                    default_member_permissions: serializePermissions(config?.defaultMemberPermissions),
-                    //@ts-ignore
-                    integration_types: (config?.integrationTypes ?? ['Guild']).map(
-                        (s: string) => {
-                            if(s === "Guild") {
-                                return "0";
-                            } else if (s == "User") {
-                                return "1";
-                            } else {
-                                throw Error("IntegrationType is not one of Guild or User");
-                            }
-                        }),
-                    //@ts-ignore
-                    contexts: config?.contexts ? config.contexts : undefined
-                }
+         //adding extra configuration
+         Reflect.set(module, PUBLISH, {
+             [GUILD_IDS]: _config.guildIds,
          })
          return controller.next();
     }) 

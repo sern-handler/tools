@@ -37,6 +37,7 @@ const serializePermissions = (permissions: unknown) => {
     }
     return null;
 }
+
 const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
 const GUILD_IDS = Symbol.for('GUILD_IDS')
@@ -56,8 +57,7 @@ export class Publisher implements Init {
             Authorization: 'Bot ' + process.env.DISCORD_TOKEN,
             'Content-Type': 'application/json',
         };
-        let me;
-        let appid: string;
+        let me; let appid: string;
         try {
             me = await fetch(new URL('@me', BASE_URL), { headers }).then(res => res.json());
             appid = me.id;
@@ -105,7 +105,6 @@ export class Publisher implements Init {
                      })
             const [globalCommands, guildedCommands] = modules.reduce(
                 ([globals, guilded], module) => {
-                    //@ts-ignore
                     const isPublishableGlobally = !module[PUBLISH]?.[GUILD_IDS];
                     if (isPublishableGlobally) {
                         return [[module, ...globals], guilded];
@@ -118,10 +117,12 @@ export class Publisher implements Init {
                 headers,
                 body: JSON.stringify(globalCommands)
             })
+            const globalJsonBody = await resultGlobal.json();
             if(resultGlobal.ok) {
                 this.logger.info({ message: "published all global commands" })
             } else {
-                this.logger.info({ message: inspect(await resultGlobal.json(), false, Infinity ) })
+                this.logger.info({ message: inspect(globalJsonBody, false, Infinity ) })
+                //todo: implement rate limiting
             }
             const guildIdMap: Map<string, CommandModule[]> = new Map();
             const responsesMap = new Map();
@@ -167,9 +168,10 @@ export class Publisher implements Init {
                     }
                 }
             }
+
             await writeFile(
                 '.sern/command-data-remote.json',
-                JSON.stringify({ global: await resultGlobal.json(),
+                JSON.stringify({ global: globalJsonBody,
                                ...Object.fromEntries(responsesMap) }, null, 4),
                 'utf8')
         }

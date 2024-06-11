@@ -40,14 +40,11 @@ const serializePermissions = (permissions: unknown) => {
 
 const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
-const GUILD_IDS = Symbol.for('GUILD_IDS')
 const PUBLISH = Symbol.for('@sern/publish')
 export class Publisher implements Init {
-    constructor(
-        private modules: Map<string, CommandModule>,
-        private sernEmitter : Emitter,
-        private logger: Logging
-    ) {}
+    constructor(private modules: Map<string, CommandModule>,
+                private sernEmitter : Emitter,
+                private logger: Logging) {}
 
     async init() {
         if(!process.env.DISCORD_TOKEN) {
@@ -168,7 +165,9 @@ export class Publisher implements Init {
                     }
                 }
             }
-
+            this.logger.info({ 
+                message: "Result of publishing is located at .sern/command-data-remote.json.\n Do not remove this!"
+            });
             await writeFile(
                 '.sern/command-data-remote.json',
                 JSON.stringify({ global: globalJsonBody,
@@ -199,9 +198,13 @@ export type ValidPublishOptions =
     | PublishConfig
     | ((absPath: string, module: CommandModule) => PublishConfig)
 
-
+/**
+  * the publishConfig plugin.
+  * If your commandModule requires extra properties such as publishing for certain guilds, you would
+  * put those options in there.
+  * @param {ValidPublishOptions} config options to configure how this module is published
+  */
 export const publishConfig = (config: ValidPublishOptions) => {
-
     return CommandInitPlugin(({ module, absPath }) => { 
         if((module.type & PUBLISHABLE) === 0) {
             //@ts-ignore

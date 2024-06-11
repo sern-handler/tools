@@ -54,10 +54,10 @@ class ShrimpleLocalizer implements Init {
   * Note: this method only works AFTER your container has been initiated
   * @example
   * ```ts
-  * assert.deepEqual(locals("salute.hello", "es"), "hola")
+  * assert.deepEqual(locals("salute.hello", "es-ES"), "hola")
   * ```
   */
-export const local  = (i: string, local: string) => {
+export const local = (i: string, local: string) => {
     return Service('localizer').translate(i, local)
 }
 
@@ -68,7 +68,7 @@ export const local  = (i: string, local: string) => {
   * An init plugin to add localization fields to a command module.
   * Your localization configuration should look like,
   * @param root {string} If you have conflicting command names, you may configure the root of the name. (= command/{root})
-  * Below is es.json (spanish)
+  * Below is es-ES.json (spanish)
   * ```json
     {
         "command/comer" : {

@@ -1,6 +1,9 @@
-
+/**
+ * A semi-generic container that provides error handling, emitter, and module store. 
+ * For the handler to operate correctly, The only user provided dependency needs to be @sern/client
+ */
 function hasCallableMethod(obj: object, name: PropertyKey) {
-    // object will always be defined
+    //@ts-ignore
     return typeof obj[name] == 'function';
 }
 /**
@@ -21,17 +24,18 @@ export class Container {
         this.hooks.get(name)!.push(callback);
     }
     private registerHooks(hookname: string, insert: object) {
+
         if(hasCallableMethod(insert, hookname)) {
-            console.log(hookname)
             //@ts-ignore
-            this.addHook(hookname, async () => await insert[hookname]())
+            this.addHook(hookname, () => insert[hookname]())
         }
     }
+
     addSingleton(key: string, insert: object) {
         if(typeof insert !== 'object') {
             throw Error("Inserted object must be an object");
         }
-        if(!this.__singletons.has(key)){
+        if(!this.__singletons.has(key)) {
             this.registerHooks('init', insert)
             this.registerHooks('dispose', insert)
             this.__singletons.set(key, insert);
@@ -40,8 +44,8 @@ export class Container {
         return false;
     }
 
-    addWiredSingleton(key: string, fn: (c: Container) => object) {
-        const insert = fn(this);
+    addWiredSingleton(key: string, fn: (c: Record<string,unknown>) => object) {
+        const insert = fn(this.deps());
         return this.addSingleton(key, insert);
     }
 
@@ -70,5 +74,16 @@ export class Container {
             await hookFunction();
         }
     }
-}
 
+    swap(key: string, swp: object) {
+        if (typeof swp !== 'object') {
+            throw Error("Inserted object must be an object");
+        }
+
+        const existing = this.__singletons.get(key);
+        if (!existing) {
+            throw Error("No existing key to swap for " + key);
+        }
+        this.__singletons.set(key, swp);
+    }
+}

@@ -1,12 +1,17 @@
 
 import { Container } from '../src/container';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 
 describe('CoreContainer Tests', () => {
     let coreContainer: Container;
-
+    let singletonWInit: { init: Mock<any, any>; value: string }
     beforeEach(() => {
         coreContainer = new Container({ autowire: false });
+        singletonWInit = {
+        value: 'singletonWithInit',
+        init: vi.fn()
+    }
+
     });
 
     it('Adding and getting singletons', () => {
@@ -99,22 +104,30 @@ describe('CoreContainer Tests', () => {
         expect(coreContainer.isReady()).toBe(true);
     }); 
     it('Registering and executing hooks - init should be called once after ready', async () => {
-        let initCount = 0;
 
-        const singletonWithInit = {
-            value: 'singletonValueWithInit',
-            init: async () => {
-                initCount++;
-            }
-        };
-
-        coreContainer.addSingleton('singletonKeyWithInit', singletonWithInit);
+        coreContainer.addSingleton('singletonKeyWithInit', singletonWInit);
 
         // Call ready twice to ensure hooks are executed only once
         await coreContainer.ready();
         await coreContainer.ready();
 
-        expect(initCount).toBe(1);
+        expect(singletonWInit.init).toHaveBeenCalledOnce();
     });
 
+    it('should throw because not swapping anything', () => {
+        
+        expect(() => coreContainer.swap('singletonKeyWithInit', singletonWInit)).toThrow()
+    })
+    it('should swap object with another', () => {
+        coreContainer.addSingleton('singleton', singletonWInit)
+        const singletonWithInit2 = {
+            value: 'singletonValueWithInit2',
+            init: vi.fn()
+        };
+        coreContainer.swap('singleton', singletonWithInit2)
+        expect(coreContainer.get('singleton')).toBe(singletonWithInit2)
+    })
+    it('should swap object, calling dispose hook', () => {
+        coreContainer.addSingleton('singleton', singletonWInit)
+    })
 })

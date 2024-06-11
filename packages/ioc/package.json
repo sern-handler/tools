@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "vitest --run",
+    "tdd": "vitest",
     "build": "tsc"
   },
   "devDependencies": {

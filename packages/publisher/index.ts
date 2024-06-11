@@ -165,9 +165,6 @@ export class Publisher implements Init {
                     }
                 }
             }
-            this.logger.info({ 
-                message: "Result of publishing is located at .sern/command-data-remote.json.\n Do not remove this!"
-            });
             await writeFile(
                 '.sern/command-data-remote.json',
                 JSON.stringify({ global: globalJsonBody,

@@ -209,6 +209,7 @@ export const publishConfig = (config: ValidPublishOptions) => {
         }
         let _config=config
         if(typeof _config === 'function') {
+            //@ts-ignore fix later
            _config = _config(absPath, module);
         }
         const { contexts, defaultMemberPermissions, integrationTypes } = _config

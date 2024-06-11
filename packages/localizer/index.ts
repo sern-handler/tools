@@ -91,12 +91,12 @@ export const localize = (root?: string) =>
             const resolvedLocalization= 'command/'+(root??module.name);
             Reflect.set(module, 'name_localizations', deps.localizer.translationsFor(resolvedLocalization+".name"));
             Reflect.set(module, 'description_localizations', deps.localizer.translationsFor(resolvedLocalization+'.description'));
+            //@ts-ignore
             const newOpts = module.options ?? [];
             //@ts-ignore 
             dfsApplyLocalization(newOpts, deps, [resolvedLocalization]);
             return controller.next();
         } else {
-            //@ts-ignore
             return controller.stop("Cannot localize this type of module " + module.name);
         }
 })

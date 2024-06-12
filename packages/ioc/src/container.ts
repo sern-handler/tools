@@ -82,8 +82,18 @@ export class Container {
 
         const existing = this.__singletons.get(key);
         if (!existing) {
+            // @jacoobes should we return false if no existing key?
             throw Error("No existing key to swap for " + key);
         }
+        // check if there's dispose hook, and call it
+        if (hasCallableMethod(existing, 'dispose')) {
+            this.disposeAll().then(() => {;
+                this.registerHooks('dispose', swp);
+            });
+        }
+
         this.__singletons.set(key, swp);
+        this.registerHooks('init', swp);
+        return true;
     }
 }

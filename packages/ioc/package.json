@@ -4,7 +4,7 @@
   "description": "Dependency Injection system",
   "main": "dist/index.js",
   "scripts": {
-    "test": "vitest --watch",
+    "test": "vitest --run",
     "tdd": "vitest",
     "build": "tsc"
   },

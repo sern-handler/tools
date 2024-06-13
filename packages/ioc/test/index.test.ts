@@ -1,22 +1,29 @@
 
 import { Container } from '../src/container';
-import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi, Mock, afterEach } from 'vitest';
 
+class SingletonCheese { 
+    dispose() {
+        return this.value
+    }
+    constructor(public value: string){}
+}
 describe('CoreContainer Tests', () => {
     let coreContainer: Container;
     let singletonWInit: { init: Mock<any, any>; value: string }
-    let singletonWDispose: { dispose: Mock<any, any>; value: string }
+    let singletonWDispose: SingletonCheese 
     beforeEach(() => {
         coreContainer = new Container({ autowire: false });
         singletonWInit = {
-        value: 'singletonWithInit',
-        init: vi.fn()
+            value: 'singletonWithInit',
+            init: vi.fn()
         };
-        singletonWDispose = {
-            value: 'singletonWithDispose',
-            dispose: vi.fn()
-        }
+        singletonWDispose = new SingletonCheese('singletonWithDispose')
     });
+
+    afterEach(() => {
+        vi.clearAllMocks() 
+    })
 
     it('Adding and getting singletons', () => {
         coreContainer.addSingleton('singletonKey', { value: 'singletonValue' });
@@ -125,11 +132,19 @@ describe('CoreContainer Tests', () => {
         expect(singletonWInit.init).toHaveBeenCalledOnce();
     });
 
-    it('should be false because not swapping anything', () => {
+    it('should return false because not swapping anything', () => {
         const swap = coreContainer.swap('singletonKeyWithInit', singletonWInit);
         expect(swap).toBe(false);
     })
-
+    it('should return true because not swapping anything', () => {
+        coreContainer.addSingleton('singletonKeyWithInit', singletonWInit);
+        const singletonWithInit2 = {
+            value: 'singletonValueWithInit2',
+            init: vi.fn()
+        };
+        const swap = coreContainer.swap('singletonKeyWithInit', singletonWithInit2);
+        expect(swap).toBe(true);
+    })
     it('should swap object with another', () => {
         coreContainer.addSingleton('singleton', singletonWInit)
         const singletonWithInit2 = {
@@ -153,12 +168,24 @@ describe('CoreContainer Tests', () => {
         };
 
         coreContainer.addSingleton('singletonWithDispose3', singletonWithDispose3);
-        const swapped = coreContainer.swap('singleton', singletonWithDispose2);
+        vi.spyOn(singletonWDispose, 'dispose')
+        coreContainer.swap('singleton', singletonWithDispose2);
 
         expect(singletonWDispose.dispose).toHaveBeenCalledOnce();
         expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithDispose2);
         expect(singletonWithDispose2.dispose).not.toHaveBeenCalledOnce();
         expect(singletonWithDispose3.dispose).not.toHaveBeenCalledOnce();
-        expect(swapped).toBe(true);
+    })
+    it('should swap object, maintaining reference to `this`', () => {
+        coreContainer.addSingleton('singleton', singletonWDispose);
+        const singletonWithDispose2 = {
+            value: 'singletonValueWithDispose2',
+            dispose: vi.fn()
+        };
+        const spiedDispose = vi.spyOn(singletonWDispose, 'dispose')
+        const swapped = coreContainer.swap('singleton', singletonWithDispose2);
+        expect(spiedDispose.mock.results[0].value).toEqual('singletonWithDispose');
+        expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithDispose2);
+        expect(singletonWithDispose2.dispose).not.toHaveBeenCalledOnce();
     })
 })

@@ -11,13 +11,14 @@ function hasCallableMethod(obj: object, name: PropertyKey) {
  */
 export class Container {
     private __singletons = new Map<PropertyKey, any>();
-    private hooks= new Map<string, Function[]>();
+    //hooks are Maps of string -> object, where object is a reference to an object in __singletons
+    private hooks= new Map<string, object[]>();
     private finished_init = false;
     constructor(options: { autowire: boolean; path?: string }) {
         if(options.autowire) { /* noop */ }
     }
     
-    addHook(name: string, callback: Function) {
+    addHook(name: string, callback: object) {
         if (!this.hooks.has(name)) {
             this.hooks.set(name, []);
         }
@@ -27,7 +28,7 @@ export class Container {
 
         if(hasCallableMethod(insert, hookname)) {
             //@ts-ignore
-            this.addHook(hookname, () => insert[hookname]())
+            this.addHook(hookname, insert)
         }
     }
 
@@ -68,10 +69,11 @@ export class Container {
         return Object.fromEntries(this.__singletons) as T
     }
 
-    async executeHooks(name: string) {
+    private async executeHooks(name: string) {
         const hookFunctions = this.hooks.get(name) || [];
-        for (const hookFunction of hookFunctions) {
-            await hookFunction();
+        for (const hookObject of hookFunctions) {
+            //@ts-ignore .registerHooks verifies the hookObject hasCallableMethod
+            await hookObject[name]();
         }
     }
 
@@ -88,7 +90,7 @@ export class Container {
         if (hasCallableMethod(existing, 'dispose')) {
             existing.dispose();
             // get the index of the existing singleton, now delete the dispose hook at that index
-            const hookIndex = this.hooks.get('dispose')!.indexOf(existing.dispose);
+            const hookIndex = this.hooks.get('dispose')!.indexOf(existing);
             if (hookIndex > -1) {
                 this.hooks.get('dispose')!.splice(hookIndex, 1);
             }

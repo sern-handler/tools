@@ -1,5 +1,5 @@
 import type { Init, CommandModule, Emitter, Logging } from '@sern/handler'
-import { controller, CommandInitPlugin } from '@sern/handler'
+import { controller, CommandInitPlugin, CommandType } from '@sern/handler'
 import { writeFile } from 'node:fs/promises';
 import { inspect } from 'node:util';
 import type { PermissionFlagsBits } from 'discord.js'
@@ -18,22 +18,21 @@ const intoApplicationType = (type: number) =>
     type === 3 ? 1 : Math.log2(type);
 
 const makeDescription = (type: number, desc: string) => {
-    if (type !== 1 && desc !== '') {
+    if (type !== CommandType.Text && desc !== '') {
         console.warn('Found context menu that has non empty description field. Implictly publishing with empty description');
         return '';
     }
     return desc;
 };
 
-const serializePermissions = (permissions: unknown) => {
-    if(typeof permissions === 'bigint' || typeof permissions === 'number') {
-       return permissions.toString(); 
+const serializePermissions = (perms: unknown) => {
+    if(typeof perms === 'bigint' || typeof perms === 'number') {
+       return perms.toString(); 
     }
 
-    if(Array.isArray(permissions)) {
-        return permissions
-            .reduce((acc, cur) => acc | cur, BigInt(0))
-            .toString()
+    if(Array.isArray(perms)) {
+        return perms.reduce((acc, cur) => acc|cur, BigInt(0))
+                    .toString()
     }
     return null;
 }
@@ -41,6 +40,8 @@ const serializePermissions = (permissions: unknown) => {
 const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
 const PUBLISH = Symbol.for('@sern/publish')
+
+
 export class Publisher implements Init {
     constructor(private modules: Map<string, CommandModule>,
                 private sernEmitter : Emitter,
@@ -50,11 +51,10 @@ export class Publisher implements Init {
         if(!process.env.DISCORD_TOKEN) {
             throw Error("No token found to publish. add DISCORD_TOKEN to .env");
         }
-        const headers = {
-            Authorization: 'Bot ' + process.env.DISCORD_TOKEN,
-            'Content-Type': 'application/json',
-        };
-        let me; let appid: string;
+        const headers = [['Authorization', 'Bot ' + process.env.DISCORD_TOKEN],
+                         ['Content-Type', 'application/json']] as Array<[string,string]>
+        let me; 
+        let appid: string;
         try {
             me = await fetch(new URL('@me', BASE_URL), { headers }).then(res => res.json());
             appid = me.id;
@@ -76,16 +76,16 @@ export class Publisher implements Init {
                             toJSON() {
                                 const applicationType = intoApplicationType(module.type);
                                 const { default_member_permissions,    
-                                        integration_types,//@ts-ignore
+                                        integration_types=['Guild'],//@ts-ignore
                                         contexts } = module[PUBLISH] ?? {};
                                 return {
                                     name: module.name, type: applicationType,
-                                    //@ts-ignore 
+                                    //@ts-ignore we know description is at least empty str or filled
                                     description: makeDescription(applicationType, module.description),
                                     //@ts-ignore shutup
                                     options: optionsTransformer(module?.options),
                                     default_member_permissions,
-                                    integration_types: (integration_types ?? ['Guild']).map(
+                                    integration_types: integration_types.map(
                                         (s: string) => {
                                             if(s === "Guild") return "0";
                                             else if (s == "User") return "1";
@@ -116,7 +116,7 @@ export class Publisher implements Init {
             })
             const globalJsonBody = await resultGlobal.json();
             if(resultGlobal.ok) {
-                this.logger.info({ message: "published all global commands" })
+                this.logger.info({ message: "Publisher: All global commands published." })
             } else {
                 this.logger.info({ message: inspect(globalJsonBody, false, Infinity ) })
                 //todo: implement rate limiting
@@ -209,7 +209,6 @@ export const publishConfig = (config: ValidPublishOptions) => {
         }
         let _config=config
         if(typeof _config === 'function') {
-            //@ts-ignore fix later
            _config = _config(absPath, module);
         }
         const { contexts, defaultMemberPermissions, integrationTypes } = _config

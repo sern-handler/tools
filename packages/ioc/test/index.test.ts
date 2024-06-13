@@ -1,5 +1,4 @@
-
-import { Container } from '../src/container';
+import { Container } from '../src';
 import { describe, it, expect, beforeEach, vi, Mock, afterEach } from 'vitest';
 
 class SingletonCheese { 

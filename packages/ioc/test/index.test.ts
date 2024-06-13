@@ -125,8 +125,9 @@ describe('CoreContainer Tests', () => {
         expect(singletonWInit.init).toHaveBeenCalledOnce();
     });
 
-    it('should throw because not swapping anything', () => {
-        expect(() => coreContainer.swap('singletonKeyWithInit', singletonWInit)).toThrow()
+    it('should be false because not swapping anything', () => {
+        const swap = coreContainer.swap('singletonKeyWithInit', singletonWInit);
+        expect(swap).toBe(false);
     })
 
     it('should swap object with another', () => {
@@ -146,11 +147,18 @@ describe('CoreContainer Tests', () => {
             dispose: vi.fn()
         };
 
+        const singletonWithDispose3 = {
+            value: 'singletonValueWithDispose3',
+            dispose: vi.fn()
+        };
+
+        coreContainer.addSingleton('singletonWithDispose3', singletonWithDispose3);
         const swapped = coreContainer.swap('singleton', singletonWithDispose2);
 
         expect(singletonWDispose.dispose).toHaveBeenCalledOnce();
         expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithDispose2);
         expect(singletonWithDispose2.dispose).not.toHaveBeenCalledOnce();
+        expect(singletonWithDispose3.dispose).not.toHaveBeenCalledOnce();
         expect(swapped).toBe(true);
     })
 })

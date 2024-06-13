@@ -82,14 +82,16 @@ export class Container {
 
         const existing = this.__singletons.get(key);
         if (!existing) {
-            // @jacoobes should we return false if no existing key?
-            throw Error("No existing key to swap for " + key);
+            return false;
         }
         // check if there's dispose hook, and call it
         if (hasCallableMethod(existing, 'dispose')) {
-            this.disposeAll().then(() => {;
-                this.registerHooks('dispose', swp);
-            });
+            existing.dispose();
+            // get the index of the existing singleton, now delete the dispose hook at that index
+            const hookIndex = this.hooks.get('dispose')!.indexOf(existing.dispose);
+            if (hookIndex > -1) {
+                this.hooks.get('dispose')!.splice(hookIndex, 1);
+            }
         }
 
         this.__singletons.set(key, swp);

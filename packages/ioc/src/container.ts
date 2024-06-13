@@ -88,8 +88,12 @@ export class Container {
         }
         // check if there's dispose hook, and call it
         if (hasCallableMethod(existing, 'dispose')) {
+            //this should technically be awaited to ensure synchronicity of swap 
+            // but i dont want to ruin the function signature of swap.
             existing.dispose();
             // get the index of the existing singleton, now delete the dispose hook at that index
+            // .indexOf is safe because we only store singletons, and it should be a reference to 
+            // the original object in this.__singletons
             const hookIndex = this.hooks.get('dispose')!.indexOf(existing);
             if (hookIndex > -1) {
                 this.hooks.get('dispose')!.splice(hookIndex, 1);

@@ -1,6 +1,9 @@
-
+/**
+ * A semi-generic container that provides error handling, emitter, and module store. 
+ * For the handler to operate correctly, The only user provided dependency needs to be @sern/client
+ */
 function hasCallableMethod(obj: object, name: PropertyKey) {
-    // object will always be defined
+    //@ts-ignore
     return typeof obj[name] == 'function';
 }
 /**
@@ -8,30 +11,32 @@ function hasCallableMethod(obj: object, name: PropertyKey) {
  */
 export class Container {
     private __singletons = new Map<PropertyKey, any>();
-    private hooks= new Map<string, Function[]>();
+    //hooks are Maps of string -> object, where object is a reference to an object in __singletons
+    private hooks= new Map<string, object[]>();
     private finished_init = false;
     constructor(options: { autowire: boolean; path?: string }) {
         if(options.autowire) { /* noop */ }
     }
     
-    addHook(name: string, callback: Function) {
+    addHook(name: string, callback: object) {
         if (!this.hooks.has(name)) {
             this.hooks.set(name, []);
         }
         this.hooks.get(name)!.push(callback);
     }
     private registerHooks(hookname: string, insert: object) {
+
         if(hasCallableMethod(insert, hookname)) {
-            console.log(hookname)
             //@ts-ignore
-            this.addHook(hookname, async () => await insert[hookname]())
+            this.addHook(hookname, insert)
         }
     }
+
     addSingleton(key: string, insert: object) {
         if(typeof insert !== 'object') {
             throw Error("Inserted object must be an object");
         }
-        if(!this.__singletons.has(key)){
+        if(!this.__singletons.has(key)) {
             this.registerHooks('init', insert)
             this.registerHooks('dispose', insert)
             this.__singletons.set(key, insert);
@@ -40,8 +45,8 @@ export class Container {
         return false;
     }
 
-    addWiredSingleton(key: string, fn: (c: Container) => object) {
-        const insert = fn(this);
+    addWiredSingleton(key: string, fn: (c: Record<string,unknown>) => object) {
+        const insert = fn(this.deps());
         return this.addSingleton(key, insert);
     }
 
@@ -64,11 +69,39 @@ export class Container {
         return Object.fromEntries(this.__singletons) as T
     }
 
-    async executeHooks(name: string) {
+    private async executeHooks(name: string) {
         const hookFunctions = this.hooks.get(name) || [];
-        for (const hookFunction of hookFunctions) {
-            await hookFunction();
+        for (const hookObject of hookFunctions) {
+            //@ts-ignore .registerHooks verifies the hookObject hasCallableMethod
+            await hookObject[name]();
         }
     }
-}
 
+    swap(key: string, swp: object) {
+        if (typeof swp !== 'object') {
+            throw Error("Inserted object must be an object");
+        }
+
+        const existing = this.__singletons.get(key);
+        if (!existing) {
+            return false;
+        }
+        // check if there's dispose hook, and call it
+        if (hasCallableMethod(existing, 'dispose')) {
+            //this should technically be awaited to ensure synchronicity of swap 
+            // but i dont want to ruin the function signature of swap.
+            existing.dispose();
+            // get the index of the existing singleton, now delete the dispose hook at that index
+            // .indexOf is safe because we only store singletons, and it should be a reference to 
+            // the original object in this.__singletons
+            const hookIndex = this.hooks.get('dispose')!.indexOf(existing);
+            if (hookIndex > -1) {
+                this.hooks.get('dispose')!.splice(hookIndex, 1);
+            }
+        }
+
+        this.__singletons.set(key, swp);
+        this.registerHooks('init', swp);
+        return true;
+    }
+}

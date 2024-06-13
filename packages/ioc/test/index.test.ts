@@ -1,13 +1,29 @@
 
 import { Container } from '../src/container';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, Mock, afterEach } from 'vitest';
 
+class SingletonCheese { 
+    dispose() {
+        return this.value
+    }
+    constructor(public value: string){}
+}
 describe('CoreContainer Tests', () => {
     let coreContainer: Container;
-
+    let singletonWInit: { init: Mock<any, any>; value: string }
+    let singletonWDispose: SingletonCheese 
     beforeEach(() => {
         coreContainer = new Container({ autowire: false });
+        singletonWInit = {
+            value: 'singletonWithInit',
+            init: vi.fn()
+        };
+        singletonWDispose = new SingletonCheese('singletonWithDispose')
     });
+
+    afterEach(() => {
+        vi.clearAllMocks() 
+    })
 
     it('Adding and getting singletons', () => {
         coreContainer.addSingleton('singletonKey', { value: 'singletonValue' });
@@ -29,6 +45,7 @@ describe('CoreContainer Tests', () => {
         const singleton = coreContainer.get('asyncSingletonKey');
         expect(singleton).toEqual({ value: 'asyncSingletonValue' });
     })
+
     it('Registering and executing hooks - init should be called once after ready', async () => {
         let initCount = 0;
 
@@ -70,51 +87,105 @@ describe('CoreContainer Tests', () => {
 
     it('wired singleton', async () => {
         let fn = vi.fn()
-        const wiredSingletonFn = (container: Container) => {
+        const wiredSingletonFn = (container: unknown) => {
             return { value: 'wiredSingletonValue', init: fn };
         };
         const added = coreContainer.addWiredSingleton('wiredSingletonKey', wiredSingletonFn);
         expect(added).toBe(true);
-        const wiredSingleton = coreContainer.get('wiredSingletonKey');
+
+        const wiredSingleton = coreContainer.get<Record<string, unknown>>('wiredSingletonKey')!;
         expect(wiredSingleton).toEqual({ value: 'wiredSingletonValue', init: fn });
-        await coreContainer.ready() 
-        await coreContainer.ready() 
-        //@ts-ignore
+
+        await coreContainer.ready();
+        await coreContainer.ready();
+
         expect(wiredSingleton.init).toHaveBeenCalledOnce();
     })
 
     it('dispose', async () => {
         let dfn = vi.fn()
+        let count = 0;
         const wiredSingletonFn =  { value: 'wiredSingletonValue', dispose: dfn };
-        coreContainer.addSingleton('sk', wiredSingletonFn);
-        
+        const added = coreContainer.addSingleton('sk', wiredSingletonFn);
+        expect(added).toBe(true);
+
+        await coreContainer.disposeAll();
         await coreContainer.disposeAll();
 
         expect(dfn).toHaveBeenCalledOnce()
     })
 
-    it('Checking if container is ready', async () => {
+    it('Checking if container is ready - async', async () => {
         expect(coreContainer.isReady()).toBe(false);
         await coreContainer.ready();
         expect(coreContainer.isReady()).toBe(true);
-    }); 
+    });
+
     it('Registering and executing hooks - init should be called once after ready', async () => {
-        let initCount = 0;
 
-        const singletonWithInit = {
-            value: 'singletonValueWithInit',
-            init: async () => {
-                initCount++;
-            }
-        };
-
-        coreContainer.addSingleton('singletonKeyWithInit', singletonWithInit);
+        coreContainer.addSingleton('singletonKeyWithInit', singletonWInit);
 
         // Call ready twice to ensure hooks are executed only once
         await coreContainer.ready();
         await coreContainer.ready();
 
-        expect(initCount).toBe(1);
+        expect(singletonWInit.init).toHaveBeenCalledOnce();
     });
 
+    it('should return false because not swapping anything', () => {
+        const swap = coreContainer.swap('singletonKeyWithInit', singletonWInit);
+        expect(swap).toBe(false);
+    })
+    it('should return true because not swapping anything', () => {
+        coreContainer.addSingleton('singletonKeyWithInit', singletonWInit);
+        const singletonWithInit2 = {
+            value: 'singletonValueWithInit2',
+            init: vi.fn()
+        };
+        const swap = coreContainer.swap('singletonKeyWithInit', singletonWithInit2);
+        expect(swap).toBe(true);
+    })
+    it('should swap object with another', () => {
+        coreContainer.addSingleton('singleton', singletonWInit)
+        const singletonWithInit2 = {
+            value: 'singletonValueWithInit2',
+            init: vi.fn()
+        };
+        coreContainer.swap('singleton', singletonWithInit2)
+        expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithInit2)
+    })
+
+    it('should swap object, calling dispose hook', () => {
+        coreContainer.addSingleton('singleton', singletonWDispose);
+        const singletonWithDispose2 = {
+            value: 'singletonValueWithDispose2',
+            dispose: vi.fn()
+        };
+
+        const singletonWithDispose3 = {
+            value: 'singletonValueWithDispose3',
+            dispose: vi.fn()
+        };
+
+        coreContainer.addSingleton('singletonWithDispose3', singletonWithDispose3);
+        vi.spyOn(singletonWDispose, 'dispose')
+        coreContainer.swap('singleton', singletonWithDispose2);
+
+        expect(singletonWDispose.dispose).toHaveBeenCalledOnce();
+        expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithDispose2);
+        expect(singletonWithDispose2.dispose).not.toHaveBeenCalledOnce();
+        expect(singletonWithDispose3.dispose).not.toHaveBeenCalledOnce();
+    })
+    it('should swap object, maintaining reference to `this`', () => {
+        coreContainer.addSingleton('singleton', singletonWDispose);
+        const singletonWithDispose2 = {
+            value: 'singletonValueWithDispose2',
+            dispose: vi.fn()
+        };
+        const spiedDispose = vi.spyOn(singletonWDispose, 'dispose')
+        const swapped = coreContainer.swap('singleton', singletonWithDispose2);
+        expect(spiedDispose.mock.results[0].value).toEqual('singletonWithDispose');
+        expect(coreContainer.get<Record<string, unknown>>('singleton')).toBe(singletonWithDispose2);
+        expect(singletonWithDispose2.dispose).not.toHaveBeenCalledOnce();
+    })
 })

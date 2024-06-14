@@ -72,12 +72,12 @@ export class Publisher implements Init {
                      .map(module => {
                         return {
                             //@ts-ignore
-                            [PUBLISH]: module[PUBLISH],
+                            guildIds: module.publish.guildIds ?? [],
                             toJSON() {
                                 const applicationType = intoApplicationType(module.type);
                                 const { default_member_permissions,    
                                         integration_types=['Guild'],//@ts-ignore
-                                        contexts } = module[PUBLISH] ?? {};
+                                        contexts } = module.publish ?? {};
                                 return {
                                     name: module.name, type: applicationType,
                                     //@ts-ignore we know description is at least empty str or filled
@@ -93,16 +93,16 @@ export class Publisher implements Init {
                                         }),
                                     contexts,
                                     //@ts-ignore
-                                    name_localizations: module.name_localizations, 
+                                    name_localizations: module.locals.name_localizations, 
                                     //@ts-ignore
-                                    description_localizations: module.description_localizations
+                                    description_localizations: module.locals.description_localizations
                                 }
                             }
                         }
                      })
             const [globalCommands, guildedCommands] = modules.reduce(
                 ([globals, guilded], module) => {
-                    const isPublishableGlobally = !module[PUBLISH] || !Array.isArray(module[PUBLISH].guildIds);
+                    const isPublishableGlobally = !module.guildIds || module.guildIds.length === 0;
                     if (isPublishableGlobally) {
                         return [[module, ...globals], guilded];
                     }
@@ -205,21 +205,24 @@ export const publishConfig = (config: ValidPublishOptions) => {
     return CommandInitPlugin(({ module, absPath }) => { 
         if((module.type & PUBLISHABLE) === 0) {
             //@ts-ignore
-            return controller.stop("Cannot publish this module");
+            return controller.stop("Cannot publish this module; Not of type Both,Slash,CtxUsr,CtxMsg.");
         }
         let _config=config
         if(typeof _config === 'function') {
            _config = _config(absPath, module);
         }
         const { contexts, defaultMemberPermissions, integrationTypes } = _config
-        //adding extra configuration
-        Reflect.set(module, PUBLISH, {
-            guildIds: _config.guildIds,
-            default_member_permissions: serializePermissions(defaultMemberPermissions),
-            integration_types: integrationTypes,
-            contexts
-        })
-        return controller.next();
+        //@ts-ignore
+        return controller.next({ 
+            locals: {
+                publish: {
+                guildIds: _config.guildIds,
+                default_member_permissions: serializePermissions(defaultMemberPermissions),
+                integration_types: integrationTypes,
+                contexts
+                }
+            }
+        });
     }) 
 }
 

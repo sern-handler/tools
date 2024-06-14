@@ -87,16 +87,19 @@ export const localize = (root?: string) =>
     //@ts-ignore
     CommandInitPlugin(({ module, deps }) => {
         if(module.type === CommandType.Slash || module.type === CommandType.Both) {
-            deps['@sern/logger'].info({ message: "Localizing "+ module.name });
-            const resolvedLocalization= 'command/'+(root??module.name);
-            Reflect.set(module, 'name_localizations', deps.localizer.translationsFor(resolvedLocalization+".name"));
-            Reflect.set(module, 'description_localizations', deps.localizer.translationsFor(resolvedLocalization+'.description'));
+            const { localizer, '@sern/logger':log  } = deps
+            log?.info({ message: "Localizing "+ module.name });
+            const resolvedRoot = 'command/'+(root??module.name);
+            dfsApplyLocalization(module.options ?? [], deps, [resolvedRoot]);
             //@ts-ignore
-            const newOpts = module.options ?? [];
-            //@ts-ignore 
-            dfsApplyLocalization(newOpts, deps, [resolvedLocalization]);
-            return controller.next();
+            return controller.next({ 
+               locals: {
+                    name_localizations: localizer.translationsFor(resolvedRoot+".name"),
+                    description_localizations: localizer.translationsFor(resolvedRoot+'.description')
+               }
+            });
         } else {
+            //@ts-ignore   
             return controller.stop("Cannot localize this type of module " + module.name);
         }
 })

@@ -29,11 +29,11 @@ jobs:
       - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - run: yarn set version classic
         working-directory: ./packages/${{ github.event.inputs.package }}
+      - run: yarn install --immutable
       - run: yarn build
         working-directory: ./packages/${{ github.event.inputs.package }}
       - run: yarn test 
         working-directory: ./packages/${{ github.event.inputs.package }}
-      - run: yarn install --immutable
       - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

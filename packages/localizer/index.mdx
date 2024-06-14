@@ -6,8 +6,6 @@ sidebar:
 ---
 
 
-# @sern/localizer
-
 A localization module for managing translations and providing localized content in your application.
 
 ## Installation
@@ -16,21 +14,43 @@ A localization module for managing translations and providing localized content 
 npm i @sern/localizer
 ```
 
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+
 ## Usage
 
 **Initializing the Localizer**
-```ts 
-import { makeDependencies } from '@sern/handler';
-import { Localization } from '@sern/localizer';
 
-await makeDependencies(({ add }) => {
-    add('localizer', Localization());
-});
-```
+<Tabs>
+    <TabItem label ="src/index.js">
+        ```ts {2} {6}
+        import { makeDependencies } from '@sern/handler';
+        import { Localization } from '@sern/localizer';
+
+        await makeDependencies(({ add }) => {
+            // add other deps
+            add('localizer', Localization());
+        });
+        ```
+    </TabItem>
+        <TabItem label="src/dependencies.d.ts">
+            ```ts {5}
+            import type { Logging, CoreDependencies } from '@sern/handler'
+            import type { Localizer } from '@sern/localizer'
+            declare global {
+                interface Dependencies extends CoreDependencies {
+                    localizer: Localizer;
+               }
+            }
+            export {}
+            ```
+        </TabItem>
+</Tabs>
+
 This localizer is **FILE BASED**.
 Create the directory `assets/locals`. Each json file in here must be named after the `locale`
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="Spanish">

@@ -1,4 +1,4 @@
-import { Container } from './container';
+import { Container } from './index';
 
 //SIDE EFFECT: GLOBAL DI
 let containerSubject: Container;
@@ -14,23 +14,18 @@ export async function __swap_container(c: Container) {
     containerSubject = c;
 }
 
-/**
-  * Don't use this unless you know what you're doing. Destroys old containerSubject if it exists and disposes everything
-  * then it will swap
-  */
-export function __add_container(key: string, v: object) {
-    containerSubject.addSingleton(key, v);
-}
 
 /**
   * Initiates the global api.
   * Once this is finished, the Service api and the other global api is available
   */
-export function __init_container(options: {
+export async function __init_container(options: {
     autowire: boolean;
     path?: string | undefined;
 }) {
     containerSubject = new Container(options);
+    await containerSubject.ready()
+    return containerSubject
 }
 
 /**
@@ -49,7 +44,7 @@ export function useContainerRaw() {
 /**
  * The Service api, retrieve from the globally init'ed container
  * Note: this method only works AFTER your container has been initiated
- * @since 3.0.0
+ * @since 1.0.0
  * @example
  * ```ts
  * const client = Service('@sern/client');
@@ -65,7 +60,7 @@ export function Service<const T>(key: PropertyKey) {
     return dep;
 }
 /**
- * @since 3.0.0
+ * @since 1.0.0
  * The plural version of {@link Service}
  * @returns array of dependencies, in the same order of keys provided
  */

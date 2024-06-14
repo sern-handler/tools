@@ -1,10 +1,22 @@
 {
   "name": "@sern/ioc",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Dependency Injection system",
   "main": "dist/index.js",
+  "module": "./dist/index.js", 
+  "exports": {
+    "." : {
+        "import": "./dist/index.js",
+        "require": "./dist/index.js"
+    },
+    "./global": {
+        "import": "./dist/global.js",
+        "require": "./dist/global.js"
+    }
+  },
   "scripts": {
     "test": "vitest --run",
+    "tdd": "vitest",
     "build": "tsc"
   },
   "devDependencies": {

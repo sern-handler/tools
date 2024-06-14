@@ -93,10 +93,10 @@ export const localize = (root?: string) =>
             dfsApplyLocalization(module.options ?? [], deps, [resolvedRoot]);
             //@ts-ignore
             return controller.next({ 
-               locals: {
-                    name_localizations: localizer.translationsFor(resolvedRoot+".name"),
-                    description_localizations: localizer.translationsFor(resolvedRoot+'.description')
-               }
+                locals: {
+                    nloc: localizer.translationsFor(resolvedRoot+".name"),
+                    dloc: localizer.translationsFor(resolvedRoot+'.description')
+                }
             });
         } else {
             //@ts-ignore   

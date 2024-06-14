@@ -19,7 +19,7 @@ NODE_ENV=<production|development>
 **Initializing the Publisher**
 ```ts 
 import { makeDependencies } from '@sern/handler';
-import { Publisher } from '@sern/localizer';
+import { Publisher } from '@sern/publisher';
 
 await makeDependencies(({ add }) => {
     add('publisher', new Publisher());
@@ -52,6 +52,9 @@ type ValidPublishOptions =
     | PublishConfig
     | (absPath: string, module: CommandModule) => PublishConfig
 ```
+:::tip 
+These types are exported under @sern/publisher
+:::
 
 ### Example: command published with integrationTypes
 

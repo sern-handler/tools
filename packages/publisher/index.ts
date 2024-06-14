@@ -25,7 +25,7 @@ const makeDescription = (type: number, desc: string) => {
     return desc;
 };
 
-const serializePermissions = (perms: unknown) => {
+const serializePerms = (perms: unknown) => {
     if(typeof perms === 'bigint' || typeof perms === 'number') {
        return perms.toString(); 
     }
@@ -85,17 +85,12 @@ export class Publisher implements Init {
                                     //@ts-ignore shutup
                                     options: optionsTransformer(module?.options),
                                     default_member_permissions,
-                                    integration_types: integration_types.map(
-                                        (s: string) => {
-                                            if(s === "Guild") return "0";
-                                            else if (s == "User") return "1";
-                                            else throw Error("IntegrationType is not one of Guild or User");
-                                        }),
+                                    integration_types,
                                     contexts,
                                     //@ts-ignore
-                                    name_localizations: module.locals.name_localizations, 
+                                    name_localizations: module.locals.nloc, 
                                     //@ts-ignore
-                                    description_localizations: module.locals.description_localizations
+                                    description_localizations: module.locals.dloc
                                 }
                             }
                         }
@@ -195,6 +190,9 @@ export type ValidPublishOptions =
     | PublishConfig
     | ((absPath: string, module: CommandModule) => PublishConfig)
 
+const IntegrationType = {
+    Guild: '0', User: '1'
+}
 /**
   * the publishConfig plugin.
   * If your commandModule requires extra properties such as publishing for certain guilds, you would
@@ -211,15 +209,15 @@ export const publishConfig = (config: ValidPublishOptions) => {
         if(typeof _config === 'function') {
            _config = _config(absPath, module);
         }
-        const { contexts, defaultMemberPermissions, integrationTypes } = _config
+        const { contexts, defaultMemberPermissions, integrationTypes:integration_types, guildIds } = _config
         //@ts-ignore
         return controller.next({ 
             locals: {
                 publish: {
-                guildIds: _config.guildIds,
-                default_member_permissions: serializePermissions(defaultMemberPermissions),
-                integration_types: integrationTypes,
-                contexts
+                    guildIds,
+                    contexts, 
+                    integration_types: integration_types?.map(i => Reflect.get(IntegrationType, i)),
+                    default_member_permissions: serializePerms(defaultMemberPermissions),
                 }
             }
         });

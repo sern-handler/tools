@@ -1,6 +1,6 @@
 {
   "name": "@sern/ioc",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Dependency Injection system",
   "main": "dist/index.js",
   "module": "./dist/index.js",

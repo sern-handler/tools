@@ -67,6 +67,7 @@ export const local = (i: string, local: string) => {
 /**
   * An init plugin to add localization fields to a command module.
   * Your localization configuration should look like,
+  * sets nloc and dloc on locals field of module.
   * @param root {string} If you have conflicting command names, you may configure the root of the name. (= command/{root})
   * Below is es-ES.json (spanish)
   * ```json
@@ -88,16 +89,13 @@ export const localize = (root?: string) =>
     CommandInitPlugin(({ module, deps }) => {
         if(module.type === CommandType.Slash || module.type === CommandType.Both) {
             const { localizer, '@sern/logger':log  } = deps
-            log?.info({ message: "Localizing "+ module.name });
             const resolvedRoot = 'command/'+(root??module.name);
-            dfsApplyLocalization(module.options ?? [], deps, [resolvedRoot]);
+            log?.info({ message: "Localizing "+ resolvedRoot });
             //@ts-ignore
-            return controller.next({ 
-                locals: {
-                    nloc: localizer.translationsFor(resolvedRoot+".name"),
-                    dloc: localizer.translationsFor(resolvedRoot+'.description')
-                }
-            });
+            dfsApplyLocalization(module.options ?? [], deps, [resolvedRoot]);
+            Reflect.set(module.locals, 'nloc', localizer.translationsFor(resolvedRoot+".name"))
+            Reflect.set(module.locals, 'dloc', localizer.translationsFor(resolvedRoot+'.description'))
+            return controller.next();
         } else {
             //@ts-ignore   
             return controller.stop("Cannot localize this type of module " + module.name);

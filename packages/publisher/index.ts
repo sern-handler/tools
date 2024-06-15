@@ -39,8 +39,6 @@ const serializePerms = (perms: unknown) => {
 
 const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
-const PUBLISH = Symbol.for('@sern/publish')
-
 
 export class Publisher implements Init {
     constructor(private modules: Map<string, CommandModule>,
@@ -63,21 +61,26 @@ export class Publisher implements Init {
             throw e;
         }
         const GLOBAL_URL = new URL(`${appid}/commands`, BASE_URL);
-
+        interface LocalPublish {
+            guildIds?: string[]
+            default_member_permissions: string,
+            integration_types: string[],
+            contexts: number[]
+        }
         const listener = async () => {
             this.logger.info({ message: 'publishing modules' });
             const modules = 
                 Array.from(this.modules.values())
                      .filter(module => (module.type & PUBLISHABLE) != 0)
                      .map(module => {
+                        const publish = module.locals.publish as LocalPublish || {}
                         return {
-                            //@ts-ignore
-                            guildIds: module.publish.guildIds ?? [],
+                            guildIds: publish?.guildIds ?? [],
                             toJSON() {
                                 const applicationType = intoApplicationType(module.type);
                                 const { default_member_permissions,    
-                                        integration_types=['Guild'],//@ts-ignore
-                                        contexts } = module.publish ?? {};
+                                        integration_types,
+                                        contexts } = publish;
                                 return {
                                     name: module.name, type: applicationType,
                                     //@ts-ignore we know description is at least empty str or filled
@@ -85,8 +88,7 @@ export class Publisher implements Init {
                                     //@ts-ignore shutup
                                     options: optionsTransformer(module?.options),
                                     default_member_permissions,
-                                    integration_types,
-                                    contexts,
+                                    integration_types, contexts,
                                     //@ts-ignore
                                     name_localizations: module.locals.nloc, 
                                     //@ts-ignore
@@ -96,6 +98,7 @@ export class Publisher implements Init {
                         }
                      })
             const [globalCommands, guildedCommands] = modules.reduce(
+                //technically these aren't sern/handler modules. 
                 ([globals, guilded], module) => {
                     const isPublishableGlobally = !module.guildIds || module.guildIds.length === 0;
                     if (isPublishableGlobally) {
@@ -119,7 +122,7 @@ export class Publisher implements Init {
             const guildIdMap: Map<string, CommandModule[]> = new Map();
             const responsesMap = new Map();
             guildedCommands.forEach((entry) => {
-                const guildIds: string[] = entry[PUBLISH].guildIds ?? []; 
+                const guildIds: string[] = entry.guildIds ?? []; 
                 if (guildIds) {
                     guildIds.forEach((guildId) => {
                         if (guildIdMap.has(guildId)) {
@@ -197,6 +200,7 @@ const IntegrationType = {
   * the publishConfig plugin.
   * If your commandModule requires extra properties such as publishing for certain guilds, you would
   * put those options in there.
+  * sets 'publish' on locals field for modules.
   * @param {ValidPublishOptions} config options to configure how this module is published
   */
 export const publishConfig = (config: ValidPublishOptions) => {
@@ -207,20 +211,16 @@ export const publishConfig = (config: ValidPublishOptions) => {
         }
         let _config=config
         if(typeof _config === 'function') {
-           _config = _config(absPath, module);
+           _config = _config(absPath, module as CommandModule);
         }
         const { contexts, defaultMemberPermissions, integrationTypes:integration_types, guildIds } = _config
-        //@ts-ignore
-        return controller.next({ 
-            locals: {
-                publish: {
-                    guildIds,
-                    contexts, 
-                    integration_types: integration_types?.map(i => Reflect.get(IntegrationType, i)),
-                    default_member_permissions: serializePerms(defaultMemberPermissions),
-                }
-            }
-        });
+        Reflect.set(module.locals, 'publish', {
+            guildIds,
+            contexts, 
+            integration_types: integration_types?.map(i => Reflect.get(IntegrationType, i)),
+            default_member_permissions: serializePerms(defaultMemberPermissions),
+        })
+        return controller.next();
     }) 
 }
 

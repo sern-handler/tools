@@ -54,10 +54,10 @@ class ShrimpleLocalizer implements Init {
   * Note: this method only works AFTER your container has been initiated
   * @example
   * ```ts
-  * assert.deepEqual(locals("salute.hello", "es"), "hola")
+  * assert.deepEqual(locals("salute.hello", "es-ES"), "hola")
   * ```
   */
-export const local  = (i: string, local: string) => {
+export const local = (i: string, local: string) => {
     return Service('localizer').translate(i, local)
 }
 
@@ -67,8 +67,9 @@ export const local  = (i: string, local: string) => {
 /**
   * An init plugin to add localization fields to a command module.
   * Your localization configuration should look like,
+  * sets nloc and dloc on locals field of module.
   * @param root {string} If you have conflicting command names, you may configure the root of the name. (= command/{root})
-  * Below is es.json (spanish)
+  * Below is es-ES.json (spanish)
   * ```json
     {
         "command/comer" : {
@@ -87,16 +88,16 @@ export const localize = (root?: string) =>
     //@ts-ignore
     CommandInitPlugin(({ module, deps }) => {
         if(module.type === CommandType.Slash || module.type === CommandType.Both) {
-            deps['@sern/logger'].info({ message: "Localizing "+ module.name });
-            const resolvedLocalization= 'command/'+(root??module.name);
-            Reflect.set(module, 'name_localizations', deps.localizer.translationsFor(resolvedLocalization+".name"));
-            Reflect.set(module, 'description_localizations', deps.localizer.translationsFor(resolvedLocalization+'.description'));
-            const newOpts = module.options ?? [];
-            //@ts-ignore 
-            dfsApplyLocalization(newOpts, deps, [resolvedLocalization]);
+            const { localizer, '@sern/logger':log  } = deps
+            const resolvedRoot = 'command/'+(root??module.name);
+            log?.info({ message: "Localizing "+ resolvedRoot });
+            //@ts-ignore
+            dfsApplyLocalization(module.options ?? [], deps, [resolvedRoot]);
+            Reflect.set(module.locals, 'nloc', localizer.translationsFor(resolvedRoot+".name"))
+            Reflect.set(module.locals, 'dloc', localizer.translationsFor(resolvedRoot+'.description'))
             return controller.next();
         } else {
-            //@ts-ignore
+            //@ts-ignore   
             return controller.stop("Cannot localize this type of module " + module.name);
         }
 })

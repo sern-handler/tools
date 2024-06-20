@@ -13,3 +13,4 @@ packages/ioc/node_modules/*
 packages/ioc/dist
 packages/poster/dts/discord.d.ts
 packages/**/node_modules
+packages/**/dist

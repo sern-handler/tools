@@ -19,8 +19,5 @@
   "publishConfig": {
     "access": "public",
     "tag": "alpha"
-  },
-  "dependencies": {
-    "@parcel/watcher": "^2.4.1"
   }
 }

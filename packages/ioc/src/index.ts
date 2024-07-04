@@ -69,11 +69,11 @@ export class Container {
         return Object.fromEntries(this.__singletons) as T
     }
 
-    private async executeHooks(name: string) {
+    async executeHooks(name: string, args: any[] = []) {
         const hookFunctions = this.hooks.get(name) || [];
         for (const hookObject of hookFunctions) {
             //@ts-ignore .registerHooks verifies the hookObject hasCallableMethod
-            await hookObject[name]();
+            hookObject[name](...args);
         }
     }
 

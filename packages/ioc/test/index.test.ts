@@ -83,6 +83,27 @@ describe('CoreContainer Tests', () => {
         expect(initCount).toBe(1);
     });
 
+    it('calls user defined hook', async () => {
+        class S { 
+            schedule = vi.fn() 
+        }
+        const s = new S()
+        coreContainer.addSingleton('abc', s)
+        coreContainer.addHook('schedule', s)
+        await coreContainer.executeHooks('schedule')
+        expect(s.schedule).toHaveBeenCalledOnce()
+    })
+
+    it('calls user defined hook with args', async () => {
+        class S { 
+            schedule = vi.fn() 
+        }
+        const s = new S()
+        coreContainer.addSingleton('abc', s)
+        coreContainer.addHook('schedule', s)
+        await coreContainer.executeHooks('schedule', ['a', 'b'])
+        expect(s.schedule).toHaveBeenNthCalledWith(1, 'a', 'b')
+    })
 
     it('wired singleton', async () => {
         let fn = vi.fn()
@@ -135,6 +156,9 @@ describe('CoreContainer Tests', () => {
         const swap = coreContainer.swap('singletonKeyWithInit', singletonWInit);
         expect(swap).toBe(false);
     })
+
+    
+
     it('should return true because not swapping anything', () => {
         coreContainer.addSingleton('singletonKeyWithInit', singletonWInit);
         const singletonWithInit2 = {

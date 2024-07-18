@@ -1,4 +1,4 @@
-import type { Init, CommandModule, Emitter, Logging } from '@sern/handler'
+import type { Init, Emitter, Logging, Module, CommandModule } from '@sern/handler'
 import { controller, CommandInitPlugin, CommandType } from '@sern/handler'
 import { writeFile } from 'node:fs/promises';
 import { inspect } from 'node:util';
@@ -41,7 +41,7 @@ const BASE_URL = new URL('https://discord.com/api/v10/applications/');
 const PUBLISHABLE = 0b1110;
 
 export class Publisher implements Init {
-    constructor(private modules: Map<string, CommandModule>,
+    constructor(private modules: Map<string, Module>,
                 private sernEmitter : Emitter,
                 private logger: Logging) {}
 
@@ -119,7 +119,7 @@ export class Publisher implements Init {
                 this.logger.info({ message: inspect(globalJsonBody, false, Infinity ) })
                 //todo: implement rate limiting
             }
-            const guildIdMap: Map<string, CommandModule[]> = new Map();
+            const guildIdMap: Map<string, Module[]> = new Map();
             const responsesMap = new Map();
             guildedCommands.forEach((entry) => {
                 const guildIds: string[] = entry.guildIds ?? []; 

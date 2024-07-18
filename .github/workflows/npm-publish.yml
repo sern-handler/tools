@@ -28,6 +28,7 @@ jobs:
           node-version: 20
       - run: corepack enable
       - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - run: yarn workspace @sern/ioc build
       - run: yarn set version classic
         working-directory: ./packages/${{ github.event.inputs.package }}
       - run: yarn install --immutable

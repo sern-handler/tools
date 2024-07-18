@@ -15,6 +15,7 @@ on:
           - builder
           - ioc
           - localizer
+          - publisher
 
 jobs:
   publish-npm:

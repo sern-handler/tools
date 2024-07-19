@@ -176,6 +176,14 @@ export class Publisher implements Init {
     }
 }
 
+export enum IntegrationContextType {
+  GUILD = 0,
+  BOT_DM = 1,
+  PRIVATE_CHANNEL = 2
+}
+
+type Contexts = IntegrationContextType | 0 | 1 | 2;
+
 export type ValidMemberPermissions = 
     | typeof PermissionFlagsBits  //discord.js enum
     | Array<typeof PermissionFlagsBits> 
@@ -185,8 +193,8 @@ export type ValidMemberPermissions =
 export interface PublishConfig {
     guildIds?: string[];
     defaultMemberPermissions?: ValidMemberPermissions;
-    integrationTypes?: Array<'Guild'|'User'>
-    contexts?: number[]
+    integrationTypes?: Array<'Guild'|'User'>;
+    contexts?: Array<Contexts>;
 }
 
 export type ValidPublishOptions = 

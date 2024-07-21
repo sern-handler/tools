@@ -47,9 +47,10 @@ type Contexts = IntegrationContextType | 0 | 1 | 2;
 type ValidMemberPermissions = 
     | typeof PermissionFlagsBits  //discord.js enum
     | Array<typeof PermissionFlagsBits> 
+    | bigint
 
 interface PublishConfig {
-    guildIds?: string[];
+    guildIds?: Array<`${number}`>;
     defaultMemberPermissions?: ValidMemberPermissions;
     integrationTypes?: Array<'Guild'|'User'>;
     contexts?: Array<Contexts>;

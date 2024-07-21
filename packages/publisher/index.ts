@@ -176,17 +176,39 @@ export class Publisher implements Init {
     }
 }
 
+export enum IntegrationContextType {
+  GUILD = 0,
+  BOT_DM = 1,
+  PRIVATE_CHANNEL = 2
+}
+
+/**
+* Valid contexts for posting commands.
+*   0 - Guild
+*   1 - Bot DM
+*   2 - Private Channel
+*   keyof IntegrationContextType
+*/
+type Contexts = IntegrationContextType | 0 | 1 | 2;
+
+/**
+* Permission Resolvable - Not all permission resolvables that discord supports are supported here
+* Valid permission types:
+*   a single permission from `PermissionFlagsBits`
+*   array of `PermissionFlagsBits`
+*   stringified permissions ex.: "Administrator"
+* V13 djs permissions will not work!
+*/
 export type ValidMemberPermissions = 
     | typeof PermissionFlagsBits  //discord.js enum
     | Array<typeof PermissionFlagsBits> 
-    | string //must be a stringified number
     | bigint
 
 export interface PublishConfig {
-    guildIds?: string[];
+    guildIds?: Array<`${number}`>;
     defaultMemberPermissions?: ValidMemberPermissions;
-    integrationTypes?: Array<'Guild'|'User'>
-    contexts?: number[]
+    integrationTypes?: Array<'Guild'|'User'>;
+    contexts?: Array<Contexts>;
 }
 
 export type ValidPublishOptions = 
@@ -206,7 +228,6 @@ const IntegrationType = {
 export const publishConfig = (config: ValidPublishOptions) => {
     return CommandInitPlugin(({ module, absPath }) => { 
         if((module.type & PUBLISHABLE) === 0) {
-            //@ts-ignore
             return controller.stop("Cannot publish this module; Not of type Both,Slash,CtxUsr,CtxMsg.");
         }
         let _config=config

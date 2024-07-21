@@ -1,7 +1,7 @@
 {
   "name": "@sern/publisher",
-  "version": "1.1.1",
-  "description": "Localizer",
+  "version": "1.1.2",
+  "description": "Publish commands in sern with ease!",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

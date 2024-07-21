@@ -179,7 +179,7 @@ export class Publisher implements Init {
 export type ValidMemberPermissions = 
     | typeof PermissionFlagsBits  //discord.js enum
     | Array<typeof PermissionFlagsBits> 
-    | string //must be a stringified number
+    | `${number}` //must be a stringified number
     | bigint
 
 export interface PublishConfig {
@@ -206,7 +206,6 @@ const IntegrationType = {
 export const publishConfig = (config: ValidPublishOptions) => {
     return CommandInitPlugin(({ module, absPath }) => { 
         if((module.type & PUBLISHABLE) === 0) {
-            //@ts-ignore
             return controller.stop("Cannot publish this module; Not of type Both,Slash,CtxUsr,CtxMsg.");
         }
         let _config=config

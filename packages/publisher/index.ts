@@ -18,11 +18,16 @@ const intoApplicationType = (type: number) =>
     type === 3 ? 1 : Math.log2(type);
 
 const makeDescription = (type: number, desc: string) => {
-    if (type !== CommandType.Text && desc !== '') {
-        console.warn('Found context menu that has non empty description field. Implictly publishing with empty description');
-        return '';
-    }
-    return desc;
+  if ((type == CommandType.Slash || type == CommandType.Both) && (!desc || desc.length === 0)) {
+    throw new Error('Found application command that has no description field or is empty.');
+  }
+  if ((type == CommandType.CtxMsg || type == CommandType.CtxUser) && desc.length > 0) {
+    console.warn(
+      'Found context menu that has non empty description field. Implictly publishing with empty description.'
+    );
+    return '';
+  }
+  return desc;
 };
 
 const serializePerms = (perms: unknown) => {

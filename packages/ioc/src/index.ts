@@ -73,7 +73,10 @@ export class Container {
         const hookFunctions = this.hooks.get(name) || [];
         for (const hookObject of hookFunctions) {
             //@ts-ignore .registerHooks verifies the hookObject hasCallableMethod
-            hookObject[name](...args);
+            const result = hookObject[name](...args);
+            if(result instanceof Promise) {
+                await result;
+            }
         }
     }
 

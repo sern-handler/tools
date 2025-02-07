@@ -31,7 +31,7 @@ jobs:
         working-directory: ./packages/${{ github.event.inputs.package }}
 
       - run: npm install
-      - run: npm run build --workspace @sern/${{ github.event.inputs.package }}
+      - run: npm run build -ws
 
       - run: npm run test --workspace @sern/${{ github.event.inputs.package }}
       - run: npm publish --workspace @sern/${{ github.event.inputs.package }}

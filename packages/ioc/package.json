@@ -23,9 +23,12 @@
     "vitest": "^1.0.0"
   },
   "keywords": [],
-  "author": "",
+  "author": "jacoobes",
   "license": "ISC",
   "publishConfig": {
     "access": "public"
+  },
+  "directories": {
+    "test": "test"
   }
 }

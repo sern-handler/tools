@@ -157,6 +157,38 @@ describe('CoreContainer Tests', () => {
         expect(swap).toBe(false);
     })
 
+    it('track order of init function calls', async () => {
+        const calls: string[] = [];
+
+        // Create singletons with mocked init functions
+        const singletonWithInit1 = { value: 'abc', init: vi.fn(() => calls.push('singletonWithInit1')) };
+        const singletonWithInit2 = { value: 'abc', init: vi.fn(async () => calls.push('singletonWithInit2')) };
+        const singletonWithInit3 = { value: 'abc', init: vi.fn(() => calls.push('singletonWithInit3')) };
+        const singletonWithInit4 = { value: 'abc', init: vi.fn(async () => calls.push('singletonWithInit4')) };
+
+        // Add singletons to the container
+        coreContainer.addSingleton('singletonKeyWithInit1', singletonWithInit1);
+        coreContainer.addSingleton('singletonKeyWithInit2', singletonWithInit2);
+        coreContainer.addSingleton('singletonKeyWithInit3', singletonWithInit3);
+        coreContainer.addSingleton('singletonKeyWithInit4', singletonWithInit4);
+
+        // Trigger the ready function
+        await coreContainer.ready();
+
+        // Verify the order of init function calls
+        expect(calls).toEqual([
+            'singletonWithInit1',
+            'singletonWithInit2',
+            'singletonWithInit3',
+            'singletonWithInit4',
+        ]);
+
+        // Optionally, verify that each init function was called
+        expect(singletonWithInit1.init).toHaveBeenCalled();
+        expect(singletonWithInit2.init).toHaveBeenCalled();
+        expect(singletonWithInit3.init).toHaveBeenCalled();
+        expect(singletonWithInit4.init).toHaveBeenCalled();
+    });
     
 
     it('should return true because not swapping anything', () => {

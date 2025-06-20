@@ -147,7 +147,7 @@ export class Publisher implements Init {
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    this.logger.info({ message: guildId + " published succesfully" })
+                    this.logger.info({ message: guildId + " published successfully" })
                     responsesMap.set(guildId, result);
                 } else {
                     switch(response.status) {
